@@ -5,22 +5,36 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-const mediaInput = document.getElementById('media-input');
 const feedContainer = document.getElementById('feed-container');
 const emptyState = document.getElementById('empty-state');
 
-mediaInput.addEventListener('change', (event) => {
-  const files = Array.from(event.target.files);
-  if (files.length === 0) return;
+const mediaInputs = [
+  document.getElementById('gallery-input'),
+  document.getElementById('camera-photo-input'),
+  document.getElementById('camera-video-input')
+].filter(Boolean);
 
-  if (emptyState) {
-    emptyState.style.display = 'none';
-  }
+mediaInputs.forEach((input) => {
+  input.addEventListener('change', (event) => {
+    const files = Array.from(event.target.files || []);
+    if (files.length === 0) return;
 
-  files.forEach((file) => {
-    const mediaUrl = URL.createObjectURL(file);
-    const postElement = createPostCard(file, mediaUrl);
-    feedContainer.appendChild(postElement);
+    if (emptyState) {
+      emptyState.style.display = 'none';
+    }
+
+    files.forEach((file) => {
+      if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) {
+        return;
+      }
+
+      const mediaUrl = URL.createObjectURL(file);
+      const postElement = createPostCard(file, mediaUrl);
+      feedContainer.appendChild(postElement);
+    });
+
+    // Permite selecionar novamente o mesmo arquivo depois.
+    event.target.value = '';
   });
 });
 
@@ -35,26 +49,29 @@ function createPostCard(file, src) {
   header.textContent = file.name;
 
   let mediaElement;
+
   if (isVideo) {
     mediaElement = document.createElement('video');
     mediaElement.src = src;
-    mediaElement.className = 'post-media';
     mediaElement.controls = true;
     mediaElement.loop = true;
     mediaElement.playsInline = true;
+    mediaElement.preload = 'metadata';
   } else {
     mediaElement = document.createElement('img');
     mediaElement.src = src;
-    mediaElement.className = 'post-media';
     mediaElement.alt = file.name;
+    mediaElement.loading = 'lazy';
   }
+
+  mediaElement.className = 'post-media';
 
   const actions = document.createElement('div');
   actions.className = 'post-actions';
   actions.innerHTML = `
-    <span class="action-btn">❤️</span>
-    <span class="action-btn">💬</span>
-    <span class="action-btn">✈️</span>
+    <button type="button" class="action-btn" aria-label="Curtir">♡</button>
+    <button type="button" class="action-btn" aria-label="Comentar">◌</button>
+    <button type="button" class="action-btn" aria-label="Compartilhar">↗</button>
   `;
 
   card.appendChild(header);
@@ -63,4 +80,3 @@ function createPostCard(file, src) {
 
   return card;
 }
-
