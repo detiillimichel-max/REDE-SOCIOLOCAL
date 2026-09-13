@@ -8,6 +8,7 @@ if ('serviceWorker' in navigator) {
 const feedContainer = document.getElementById('feed-container');
 const emptyState = document.getElementById('empty-state');
 
+// Cada botao possui seu proprio seletor de arquivos.
 const buttonInputPairs = [
   ['gallery-photo-button', 'gallery-photo-input'],
   ['gallery-video-button', 'gallery-video-input'],
@@ -19,10 +20,17 @@ buttonInputPairs.forEach(([buttonId, inputId]) => {
   const button = document.getElementById(buttonId);
   const input = document.getElementById(inputId);
 
-  if (button && input) {
-    button.addEventListener('click', () => input.click());
-    input.addEventListener('change', handleMediaSelection);
+  if (!button || !input) {
+    console.error(`Botao ou seletor nao encontrado: ${buttonId} / ${inputId}`);
+    return;
   }
+
+  button.addEventListener('click', (event) => {
+    event.preventDefault();
+    input.click();
+  });
+
+  input.addEventListener('change', handleMediaSelection);
 });
 
 function handleMediaSelection(event) {
@@ -34,16 +42,17 @@ function handleMediaSelection(event) {
   }
 
   files.forEach((file) => {
-    if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) {
-      return;
-    }
+    const isImage = file.type.startsWith('image/');
+    const isVideo = file.type.startsWith('video/');
+
+    if (!isImage && !isVideo) return;
 
     const mediaUrl = URL.createObjectURL(file);
     const postElement = createPostCard(file, mediaUrl);
     feedContainer.appendChild(postElement);
   });
 
-  // Permite selecionar novamente o mesmo arquivo depois.
+  // Permite selecionar novamente o mesmo arquivo.
   event.target.value = '';
 }
 
