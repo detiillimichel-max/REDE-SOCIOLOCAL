@@ -8,10 +8,58 @@ if ('serviceWorker' in navigator) {
 const feedContainer = document.getElementById('feed-container');
 const emptyState = document.getElementById('empty-state');
 
+// Entradas de mídia existentes no index.html.
+const galleryButton = document.getElementById('gallery-button');
+const galleryChoice = document.getElementById('gallery-choice');
+const galleryPhotosButton = document.getElementById('gallery-photos');
+const galleryVideosButton = document.getElementById('gallery-videos');
+const galleryCancelButton = document.getElementById('gallery-cancel');
+const galleryPhotoInput = document.getElementById('gallery-photo-input');
+const galleryVideoInput = document.getElementById('gallery-video-input');
+const cameraPhotoInput = document.getElementById('camera-photo-input');
+const cameraVideoInput = document.getElementById('camera-video-input');
+
+// O botão Galeria abre primeiro a escolha entre Fotos e Vídeos.
+if (galleryButton && galleryChoice) {
+  galleryButton.addEventListener('click', () => {
+    galleryChoice.hidden = false;
+  });
+}
+
+if (galleryPhotosButton && galleryPhotoInput) {
+  galleryPhotosButton.addEventListener('click', () => {
+    galleryChoice.hidden = true;
+    galleryPhotoInput.click();
+  });
+}
+
+if (galleryVideosButton && galleryVideoInput) {
+  galleryVideosButton.addEventListener('click', () => {
+    galleryChoice.hidden = true;
+    galleryVideoInput.click();
+  });
+}
+
+if (galleryCancelButton && galleryChoice) {
+  galleryCancelButton.addEventListener('click', () => {
+    galleryChoice.hidden = true;
+  });
+}
+
+// Fecha a escolha ao tocar fora do cartão.
+if (galleryChoice) {
+  galleryChoice.addEventListener('click', (event) => {
+    if (event.target === galleryChoice) {
+      galleryChoice.hidden = true;
+    }
+  });
+}
+
 const mediaInputs = [
-  document.getElementById('gallery-input'),
-  document.getElementById('camera-photo-input'),
-  document.getElementById('camera-video-input')
+  galleryPhotoInput,
+  galleryVideoInput,
+  cameraPhotoInput,
+  cameraVideoInput
 ].filter(Boolean);
 
 mediaInputs.forEach((input) => {
