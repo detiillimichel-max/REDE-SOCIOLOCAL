@@ -8,83 +8,44 @@ if ('serviceWorker' in navigator) {
 const feedContainer = document.getElementById('feed-container');
 const emptyState = document.getElementById('empty-state');
 
-// Entradas de mídia existentes no index.html.
-const galleryButton = document.getElementById('gallery-button');
-const galleryChoice = document.getElementById('gallery-choice');
-const galleryPhotosButton = document.getElementById('gallery-photos');
-const galleryVideosButton = document.getElementById('gallery-videos');
-const galleryCancelButton = document.getElementById('gallery-cancel');
-const galleryPhotoInput = document.getElementById('gallery-photo-input');
-const galleryVideoInput = document.getElementById('gallery-video-input');
-const cameraPhotoInput = document.getElementById('camera-photo-input');
-const cameraVideoInput = document.getElementById('camera-video-input');
+const buttonInputPairs = [
+  ['gallery-photo-button', 'gallery-photo-input'],
+  ['gallery-video-button', 'gallery-video-input'],
+  ['camera-photo-button', 'camera-photo-input'],
+  ['camera-video-button', 'camera-video-input']
+];
 
-// O botão Galeria abre primeiro a escolha entre Fotos e Vídeos.
-if (galleryButton && galleryChoice) {
-  galleryButton.addEventListener('click', () => {
-    galleryChoice.hidden = false;
-  });
-}
+buttonInputPairs.forEach(([buttonId, inputId]) => {
+  const button = document.getElementById(buttonId);
+  const input = document.getElementById(inputId);
 
-if (galleryPhotosButton && galleryPhotoInput) {
-  galleryPhotosButton.addEventListener('click', () => {
-    galleryChoice.hidden = true;
-    galleryPhotoInput.click();
-  });
-}
-
-if (galleryVideosButton && galleryVideoInput) {
-  galleryVideosButton.addEventListener('click', () => {
-    galleryChoice.hidden = true;
-    galleryVideoInput.click();
-  });
-}
-
-if (galleryCancelButton && galleryChoice) {
-  galleryCancelButton.addEventListener('click', () => {
-    galleryChoice.hidden = true;
-  });
-}
-
-// Fecha a escolha ao tocar fora do cartão.
-if (galleryChoice) {
-  galleryChoice.addEventListener('click', (event) => {
-    if (event.target === galleryChoice) {
-      galleryChoice.hidden = true;
-    }
-  });
-}
-
-const mediaInputs = [
-  galleryPhotoInput,
-  galleryVideoInput,
-  cameraPhotoInput,
-  cameraVideoInput
-].filter(Boolean);
-
-mediaInputs.forEach((input) => {
-  input.addEventListener('change', (event) => {
-    const files = Array.from(event.target.files || []);
-    if (files.length === 0) return;
-
-    if (emptyState) {
-      emptyState.style.display = 'none';
-    }
-
-    files.forEach((file) => {
-      if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) {
-        return;
-      }
-
-      const mediaUrl = URL.createObjectURL(file);
-      const postElement = createPostCard(file, mediaUrl);
-      feedContainer.appendChild(postElement);
-    });
-
-    // Permite selecionar novamente o mesmo arquivo depois.
-    event.target.value = '';
-  });
+  if (button && input) {
+    button.addEventListener('click', () => input.click());
+    input.addEventListener('change', handleMediaSelection);
+  }
 });
+
+function handleMediaSelection(event) {
+  const files = Array.from(event.target.files || []);
+  if (files.length === 0) return;
+
+  if (emptyState) {
+    emptyState.style.display = 'none';
+  }
+
+  files.forEach((file) => {
+    if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) {
+      return;
+    }
+
+    const mediaUrl = URL.createObjectURL(file);
+    const postElement = createPostCard(file, mediaUrl);
+    feedContainer.appendChild(postElement);
+  });
+
+  // Permite selecionar novamente o mesmo arquivo depois.
+  event.target.value = '';
+}
 
 function createPostCard(file, src) {
   const card = document.createElement('article');
