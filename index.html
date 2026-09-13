@@ -3,27 +3,39 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#000000">
+  <meta name="description" content="Visualizador privado de fotos e vídeos locais">
   <title>Meu Feed Social</title>
   <link rel="stylesheet" href="css/styles.css">
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#000000">
 </head>
 <body>
-
-  <!-- Cabecalho Fixo -->
   <header class="app-header">
     <h1>Social Media PWA</h1>
-    <label for="media-input" class="btn-select">
-      <span>+ Adicionar Fotos/Vídeos</span>
-      <input type="file" id="media-input" accept="image/*,video/*" multiple hidden>
-    </label>
+
+    <div class="media-actions">
+      <label for="gallery-input" class="btn-select">
+        <span>＋ Galeria</span>
+      </label>
+      <input type="file" id="gallery-input" accept="image/*,video/*" multiple hidden>
+
+      <label for="camera-photo-input" class="btn-select btn-secondary">
+        <span>📷 Foto</span>
+      </label>
+      <input type="file" id="camera-photo-input" accept="image/*" capture="environment" hidden>
+
+      <label for="camera-video-input" class="btn-select btn-secondary">
+        <span>🎥 Vídeo</span>
+      </label>
+      <input type="file" id="camera-video-input" accept="video/*" capture="environment" hidden>
+    </div>
   </header>
 
-  <!-- Feed de Mídias estilo Rede Social -->
   <main id="feed-container" class="feed-container">
     <div class="empty-state" id="empty-state">
       <p>Nenhuma foto ou vídeo selecionado.</p>
-      <p>Clique no botão acima para carregar suas mídias do celular ou computador.</p>
+      <p>Escolha <strong>Galeria</strong> para selecionar várias mídias, ou use <strong>Foto</strong> e <strong>Vídeo</strong> para abrir a câmera.</p>
+      <small>As mídias são exibidas somente neste dispositivo e não são enviadas para servidor.</small>
     </div>
   </main>
 
