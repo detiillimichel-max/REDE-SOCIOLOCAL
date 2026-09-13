@@ -10,7 +10,6 @@
       return;
     }
 
-    // Inicializa os icones da biblioteca Lucide, quando disponivel.
     if (window.lucide && typeof window.lucide.createIcons === 'function') {
       window.lucide.createIcons();
     }
@@ -31,7 +30,6 @@
         return;
       }
 
-      // Evita duplicar eventos se o script for carregado novamente.
       if (button.dataset.mediaReady === 'true') return;
       button.dataset.mediaReady = 'true';
 
@@ -53,7 +51,6 @@
           feedContainer.appendChild(createPostCard(file, mediaUrl));
         });
 
-        // Permite escolher novamente o mesmo arquivo.
         input.value = '';
       });
     });
@@ -64,6 +61,7 @@
     card.className = 'post-card';
 
     const isVideo = file.type.startsWith('video/');
+    const mediaId = `local-${crypto?.randomUUID ? crypto.randomUUID() : Date.now()}`;
     const header = document.createElement('div');
     header.className = 'post-header';
     header.textContent = file.name;
@@ -82,19 +80,42 @@
       mediaElement.loading = 'lazy';
     }
 
-    const actions = document.createElement('div');
+    const actions = document.createElement('aside');
     actions.className = 'post-actions';
+    actions.setAttribute('aria-label', 'Ações de engajamento');
     actions.innerHTML = `
-      <button type="button" class="action-btn" aria-label="Curtir">♡</button>
-      <button type="button" class="action-btn" aria-label="Comentar">◌</button>
-      <button type="button" class="action-btn" aria-label="Compartilhar">↗</button>
+      <button type="button" class="action-btn" data-engajamento="curtir" data-media-id="${mediaId}" aria-label="Curtir">
+        <i data-lucide="thumbs-up"></i>
+      </button>
+      <button type="button" class="action-btn" data-engajamento="nao-curtir" data-media-id="${mediaId}" aria-label="Não curtir">
+        <i data-lucide="thumbs-down"></i>
+      </button>
+      <button type="button" class="action-btn" data-engajamento="comentarios" data-media-id="${mediaId}" aria-label="Comentários">
+        <i data-lucide="message-square"></i>
+      </button>
+      <button
+        type="button"
+        class="action-btn"
+        data-engajamento="compartilhar"
+        data-media-id="${mediaId}"
+        data-share-title="${file.name.replace(/"/g, '&quot;')}"
+        data-share-text="Compartilhar ${file.name.replace(/"/g, '&quot;')}"
+        data-share-url="${src}"
+        aria-label="Compartilhar"
+      >
+        <i data-lucide="share-2"></i>
+      </button>
     `;
 
     card.append(header, mediaElement, actions);
+
+    if (window.lucide && typeof window.lucide.createIcons === 'function') {
+      window.lucide.createIcons({ root: actions });
+    }
+
     return card;
   }
 
-  // O script esta no final do HTML, mas esta protecao tambem funciona se for movido.
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', iniciarAplicacao, { once: true });
   } else {
