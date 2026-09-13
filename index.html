@@ -13,33 +13,35 @@
   <header class="app-header">
     <h1>Social Media PWA</h1>
     <div class="media-actions">
-      <button type="button" id="gallery-button" class="btn-select"><span>＋ Galeria</span></button>
+      <button type="button" id="gallery-photo-button" class="btn-select media-button" aria-label="Selecionar fotos da galeria">
+        <i data-lucide="images"></i><span>Fotos</span>
+      </button>
+      <button type="button" id="gallery-video-button" class="btn-select media-button" aria-label="Selecionar vídeos da galeria">
+        <i data-lucide="film"></i><span>Vídeos</span>
+      </button>
+      <button type="button" id="camera-photo-button" class="btn-select media-button btn-secondary" aria-label="Tirar foto">
+        <i data-lucide="camera"></i><span>Foto</span>
+      </button>
+      <button type="button" id="camera-video-button" class="btn-select media-button btn-secondary" aria-label="Gravar vídeo">
+        <i data-lucide="video"></i><span>Vídeo</span>
+      </button>
+
       <input type="file" id="gallery-photo-input" accept="image/*" multiple hidden>
       <input type="file" id="gallery-video-input" accept="video/*" multiple hidden>
-      <label for="camera-photo-input" class="btn-select btn-secondary"><span>📷 Foto</span></label>
       <input type="file" id="camera-photo-input" accept="image/*" capture="environment" hidden>
-      <label for="camera-video-input" class="btn-select btn-secondary"><span>🎥 Vídeo</span></label>
       <input type="file" id="camera-video-input" accept="video/*" capture="environment" hidden>
     </div>
   </header>
 
-  <div id="gallery-choice" class="gallery-choice" hidden>
-    <div class="gallery-choice-card" role="dialog" aria-modal="true" aria-labelledby="gallery-choice-title">
-      <h2 id="gallery-choice-title">Escolher mídia</h2>
-      <button type="button" id="gallery-photos" class="gallery-choice-btn">📷 Fotos</button>
-      <button type="button" id="gallery-videos" class="gallery-choice-btn">🎥 Vídeos</button>
-      <button type="button" id="gallery-cancel" class="gallery-choice-cancel">Cancelar</button>
-    </div>
-  </div>
-
   <main id="feed-container" class="feed-container">
     <div class="empty-state" id="empty-state">
       <p>Nenhuma foto ou vídeo selecionado.</p>
-      <p>Escolha <strong>Galeria</strong> para selecionar fotos ou vídeos, ou use <strong>Foto</strong> e <strong>Vídeo</strong> para abrir a câmera.</p>
+      <p>Use os quatro botões para escolher fotos ou vídeos da galeria, tirar fotos ou gravar vídeos.</p>
       <small>As mídias são exibidas somente neste dispositivo e não são enviadas para servidor.</small>
     </div>
   </main>
 
+  <script src="https://unpkg.com/lucide@latest"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
