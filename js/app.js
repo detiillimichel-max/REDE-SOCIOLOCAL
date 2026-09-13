@@ -1,100 +1,103 @@
-// Registro do Service Worker
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js').catch((err) => {
-    console.error('Falha ao registrar Service Worker:', err);
-  });
-}
+(() => {
+  'use strict';
 
-const feedContainer = document.getElementById('feed-container');
-const emptyState = document.getElementById('empty-state');
+  function iniciarAplicacao() {
+    const feedContainer = document.getElementById('feed-container');
+    const emptyState = document.getElementById('empty-state');
 
-// Cada botao possui seu proprio seletor de arquivos.
-const buttonInputPairs = [
-  ['gallery-photo-button', 'gallery-photo-input'],
-  ['gallery-video-button', 'gallery-video-input'],
-  ['camera-photo-button', 'camera-photo-input'],
-  ['camera-video-button', 'camera-video-input']
-];
+    if (!feedContainer) {
+      console.error('Feed de midia nao encontrado.');
+      return;
+    }
 
-buttonInputPairs.forEach(([buttonId, inputId]) => {
-  const button = document.getElementById(buttonId);
-  const input = document.getElementById(inputId);
+    // Inicializa os icones da biblioteca Lucide, quando disponivel.
+    if (window.lucide && typeof window.lucide.createIcons === 'function') {
+      window.lucide.createIcons();
+    }
 
-  if (!button || !input) {
-    console.error(`Botao ou seletor nao encontrado: ${buttonId} / ${inputId}`);
-    return;
+    const buttonInputPairs = [
+      ['gallery-photo-button', 'gallery-photo-input'],
+      ['gallery-video-button', 'gallery-video-input'],
+      ['camera-photo-button', 'camera-photo-input'],
+      ['camera-video-button', 'camera-video-input']
+    ];
+
+    buttonInputPairs.forEach(([buttonId, inputId]) => {
+      const button = document.getElementById(buttonId);
+      const input = document.getElementById(inputId);
+
+      if (!button || !input) {
+        console.error(`Elemento ausente: ${buttonId} ou ${inputId}`);
+        return;
+      }
+
+      // Evita duplicar eventos se o script for carregado novamente.
+      if (button.dataset.mediaReady === 'true') return;
+      button.dataset.mediaReady = 'true';
+
+      button.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        input.click();
+      });
+
+      input.addEventListener('change', (event) => {
+        const files = Array.from(event.target.files || []);
+        if (!files.length) return;
+
+        if (emptyState) emptyState.hidden = true;
+
+        files.forEach((file) => {
+          if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) return;
+          const mediaUrl = URL.createObjectURL(file);
+          feedContainer.appendChild(createPostCard(file, mediaUrl));
+        });
+
+        // Permite escolher novamente o mesmo arquivo.
+        input.value = '';
+      });
+    });
   }
 
-  button.addEventListener('click', (event) => {
-    event.preventDefault();
-    input.click();
-  });
+  function createPostCard(file, src) {
+    const card = document.createElement('article');
+    card.className = 'post-card';
 
-  input.addEventListener('change', handleMediaSelection);
-});
-
-function handleMediaSelection(event) {
-  const files = Array.from(event.target.files || []);
-  if (files.length === 0) return;
-
-  if (emptyState) {
-    emptyState.style.display = 'none';
-  }
-
-  files.forEach((file) => {
-    const isImage = file.type.startsWith('image/');
     const isVideo = file.type.startsWith('video/');
+    const header = document.createElement('div');
+    header.className = 'post-header';
+    header.textContent = file.name;
 
-    if (!isImage && !isVideo) return;
-
-    const mediaUrl = URL.createObjectURL(file);
-    const postElement = createPostCard(file, mediaUrl);
-    feedContainer.appendChild(postElement);
-  });
-
-  // Permite selecionar novamente o mesmo arquivo.
-  event.target.value = '';
-}
-
-function createPostCard(file, src) {
-  const card = document.createElement('article');
-  card.className = 'post-card';
-
-  const isVideo = file.type.startsWith('video/');
-
-  const header = document.createElement('div');
-  header.className = 'post-header';
-  header.textContent = file.name;
-
-  let mediaElement;
-
-  if (isVideo) {
-    mediaElement = document.createElement('video');
+    const mediaElement = document.createElement(isVideo ? 'video' : 'img');
+    mediaElement.className = 'post-media';
     mediaElement.src = src;
-    mediaElement.controls = true;
-    mediaElement.loop = true;
-    mediaElement.playsInline = true;
-    mediaElement.preload = 'metadata';
-  } else {
-    mediaElement = document.createElement('img');
-    mediaElement.src = src;
-    mediaElement.alt = file.name;
-    mediaElement.loading = 'lazy';
+
+    if (isVideo) {
+      mediaElement.controls = true;
+      mediaElement.loop = true;
+      mediaElement.playsInline = true;
+      mediaElement.preload = 'metadata';
+    } else {
+      mediaElement.alt = file.name;
+      mediaElement.loading = 'lazy';
+    }
+
+    const actions = document.createElement('div');
+    actions.className = 'post-actions';
+    actions.innerHTML = `
+      <button type="button" class="action-btn" aria-label="Curtir">♡</button>
+      <button type="button" class="action-btn" aria-label="Comentar">◌</button>
+      <button type="button" class="action-btn" aria-label="Compartilhar">↗</button>
+    `;
+
+    card.append(header, mediaElement, actions);
+    return card;
   }
 
-  mediaElement.className = 'post-media';
-
-  const actions = document.createElement('div');
-  actions.className = 'post-actions';
-  actions.innerHTML = `
-    <button type="button" class="action-btn" aria-label="Curtir">♡</button>
-    <button type="button" class="action-btn" aria-label="Comentar">◌</button>
-    <button type="button" class="action-btn" aria-label="Compartilhar">↗</button>
-  `;
-
-  card.appendChild(header);
-  card.appendChild(mediaElement);
-  card.appendChild(actions);
-
-  return card;
-}
+  // O script esta no final do HTML, mas esta protecao tambem funciona se for movido.
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', iniciarAplicacao, { once: true });
+  } else {
+    iniciarAplicacao();
+  }
+})();
