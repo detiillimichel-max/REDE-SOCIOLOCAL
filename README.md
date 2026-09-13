@@ -26,3 +26,7 @@ meu-pwa-mídia/
 │   └── styles.css      # Estilização do feed
 └── js/
     └── app.js          # Lógica de leitura de arquivos e criação de posts
+Arquivos
+js/engajamento.js — novo módulo dedicado.
+js/app.js — conecta os quatro botões de engajamento a esse módulo.
+index.html — carrega engajamento.js depois do app.js.
