@@ -1,220 +1,237 @@
-# Neural-iA — Arquitetura de Vídeos, Cache e Controle de Consumo
+# REDE-SOCIOLOCAL — Plano de Integração de Mídia, Cache e Controle de Consumo
 
-**Documento-base do projeto**
+**Documento de planejamento — não representa funcionalidades já implementadas**
 
 - **Repositório:** `detiillimichel-max/REDE-SOCIOLOCAL`
 - **Aplicação:** `https://detiillimichel-max.github.io/REDE-SOCIOLOCAL/?v6`
-- **Projeto Supabase:** Neural-iA
-- **URL informada do Supabase:** `https://svqocghixhrpqaxucubn.supabase.co/`
-- **Escopo:** arquitetura de vídeos, Mux, cache, Modo Cinema e controle de consumo
-- **Versão do documento:** 1.0
+- **Frontend atual:** PWA estático hospedado no GitHub Pages
+- **Backend atual:** ainda não integrado
+- **Supabase planejado:** `https://svqocghixhrpqaxucubn.supabase.co/`
+- **Status da integração Supabase:** **não iniciada**
+- **Escopo:** integração futura do Supabase, vídeos, Mux, cache, Modo Cinema e controle de consumo
 - **Última atualização:** 2026-09-14
 
-> **Importante:** este documento se refere ao projeto **Neural-iA**. O projeto **OIO TOC CORE não faz parte desta arquitetura** e não deve ser alterado como parte desta implementação.
+> **Correção fundamental:** o repositório `REDE-SOCIOLOCAL` **não possui Supabase integrado neste momento**. O Supabase informado acima será integrado futuramente. Nenhuma tabela, Edge Function, autenticação ou conexão do Supabase deve ser considerada existente no frontend atual.
+>
+> O projeto **OIO TOC CORE** não faz parte deste trabalho e não deve ser alterado.
 
 ---
 
-## 1. Objetivo
+## 1. Estado real do repositório
 
-Criar uma arquitetura híbrida para oferecer uma experiência de feed praticamente ilimitada, sem encher o banco de dados com arquivos de vídeo e sem consumir rapidamente os limites das APIs externas.
+### Já existe no REDE-SOCIOLOCAL
 
-O Neural-iA será responsável pela camada de dados, cache, controle de consumo e Edge Functions. A Mux será utilizada para processamento e entrega de vídeos acima do limite de duração definido. As APIs externas serão consultadas de maneira controlada, e os usuários consumirão somente o conteúdo que já estiver disponível no cache do aplicativo.
-
----
-
-## 2. Estado atual do projeto
-
-### Já existe / já feito
-
-- [x] Repositório `REDE-SOCIOLOCAL` criado e publicado.
-- [x] Frontend PWA existente.
-- [x] Interface de feed para fotos e vídeos locais.
+- [x] Repositório criado e publicado.
+- [x] PWA existente.
+- [x] `index.html` com estrutura de feed.
 - [x] Seleção de fotos pela galeria.
 - [x] Seleção de vídeos pela galeria.
 - [x] Captura de fotos pela câmera.
-- [x] Gravação de vídeos pela câmera.
-- [x] Exibição de mídias no feed.
-- [x] Estrutura de PWA com `manifest.json`.
-- [x] Service Worker existente para suporte offline.
-- [x] Biblioteca Lucide utilizada no frontend.
-- [x] Módulo de engajamento separado em `js/engajamento.js`.
+- [x] Captura de vídeos pela câmera.
+- [x] Criação de cards de mídia no feed.
+- [x] Reprodução de vídeos locais.
+- [x] Biblioteca de ícones Lucide.
+- [x] Módulo separado de engajamento.
 - [x] Botões de curtir, não curtir, comentários e compartilhar.
-- [x] Projeto Supabase Neural-iA existente.
-- [x] Tabelas e Edge Functions existentes no Neural-iA.
-- [x] Estrutura inicial para integração futura com APIs externas.
-- [x] Conceito de utilização da Mux definido para vídeos acima do limite X.
-- [x] Conceito de cache centralizado por aplicativo definido.
-- [x] Conceito de rate limit por aplicativo definido.
+- [x] `manifest.json`.
+- [x] Service Worker `sw.js`.
+- [x] Estrutura CSS e JavaScript modular já existente.
 
-### Ainda precisa ser feito
+### Ainda não existe no repositório
 
-- [ ] Auditar profundamente o frontend atual antes de modificar qualquer arquivo.
-- [ ] Auditar as tabelas e Edge Functions existentes no Neural-iA.
-- [ ] Definir formalmente o limite X de duração dos vídeos.
-- [ ] Implementar a identificação da duração antes do upload definitivo.
-- [ ] Implementar o fluxo de upload direto para a Mux.
-- [ ] Implementar webhook ou rotina segura para acompanhar o processamento da Mux.
-- [ ] Criar ou adaptar a estrutura de metadados dos vídeos Mux.
-- [ ] Criar o gateway de descoberta de conteúdo.
-- [ ] Criar o cache por aplicativo.
-- [ ] Criar o controle de rate limit por fonte e por janela.
-- [ ] Implementar a renovação automática das janelas de consulta.
-- [ ] Implementar o Modo Cinema.
-- [ ] Integrar primeiro as APIs públicas.
-- [ ] Integrar depois as APIs privadas ou restritas.
-- [ ] Implementar deduplicação dos conteúdos externos.
-- [ ] Implementar cards de filmes, séries, desenhos, esportes, música e audiovisual.
-- [ ] Implementar fallback para imagem com áudio próprio.
-- [ ] Implementar métricas de cache hit, cache miss e consumo.
-- [ ] Realizar testes de limite, falha, renovação e recuperação.
-- [ ] Atualizar este documento ao concluir cada etapa.
+- [ ] Integração com Supabase.
+- [ ] Cliente Supabase configurado no frontend.
+- [ ] Autenticação de usuários pelo Supabase.
+- [ ] Tabelas do aplicativo no Supabase.
+- [ ] Regras RLS do aplicativo.
+- [ ] Edge Functions próprias para este projeto.
+- [ ] Integração com Mux.
+- [ ] Upload direto para Mux.
+- [ ] Webhook de processamento de vídeos.
+- [ ] Cache centralizado de conteúdo externo.
+- [ ] Gateway de APIs externas.
+- [ ] Rate limit implementado.
+- [ ] Modo Cinema implementado.
+
+**Regra de documentação:** somente itens realmente existentes e verificados no repositório podem receber `[x]`. Tudo que for integração futura permanece como `[ ]`.
 
 ---
 
-## 3. Regra de duração dos vídeos
+## 2. Objetivo da próxima arquitetura
 
-Será definido um limite configurável **X** de duração. O exemplo inicial considerado é **X = 2 minutos**.
+Evoluir o PWA existente sem reconstruí-lo, adicionando uma camada de dados e mídia com o Supabase informado pelo proprietário do projeto.
+
+A arquitetura pretendida deverá permitir:
+
+- publicar e armazenar metadados de fotos e vídeos;
+- manter vídeos curtos no fluxo adequado ao frontend;
+- encaminhar vídeos acima do limite definido para a Mux;
+- consultar APIs externas de forma controlada;
+- armazenar somente metadados e referências no banco;
+- utilizar cache por aplicativo, não por usuário;
+- evitar uma chamada externa a cada rolagem ou visualização;
+- continuar exibindo conteúdo já armazenado quando uma fonte estiver em pausa.
+
+---
+
+## 3. Integração planejada com o Supabase
+
+**Destino da integração:**
+
+`https://svqocghixhrpqaxucubn.supabase.co/`
+
+### Etapas ainda pendentes
+
+- [ ] Confirmar o projeto Supabase correto e seu acesso administrativo.
+- [ ] Auditar o projeto Supabase antes de criar qualquer tabela.
+- [ ] Confirmar se já existem estruturas que podem ser reutilizadas.
+- [ ] Criar as tabelas necessárias sem apagar estruturas existentes.
+- [ ] Configurar variáveis públicas permitidas no frontend.
+- [ ] Nunca colocar chave `service_role` no frontend ou no GitHub Pages.
+- [ ] Configurar autenticação, caso seja necessária nesta fase.
+- [ ] Configurar RLS para proteger dados privados.
+- [ ] Criar as Edge Functions específicas do REDE-SOCIOLOCAL.
+- [ ] Conectar o frontend ao Supabase somente após a auditoria.
+- [ ] Testar leitura, gravação, autenticação e permissões.
+
+> O Supabase será integrado ao REDE-SOCIOLOCAL. A integração não deve ser marcada como concluída antes de existir conexão funcional e validada no código.
+
+---
+
+## 4. Regra de duração dos vídeos
+
+Será definido um limite configurável **X** para a duração dos vídeos. O valor de **2 minutos** é apenas uma hipótese inicial e ainda não é o valor oficial.
 
 - [ ] Definir o valor oficial de X.
-- [ ] Colocar o valor X em uma configuração central.
+- [ ] Colocar X em uma configuração central.
+- [ ] Identificar a duração antes do upload definitivo.
 - [ ] Permitir alteração futura sem reescrever o aplicativo.
 
-Regras:
+Regras planejadas:
 
-- [ ] Vídeos com duração igual ou inferior a X seguem o fluxo normal de vídeos curtos.
-- [ ] Vídeos com duração superior a X são enviados para a Mux.
-- [ ] O banco não armazena vídeos longos como Base64, blob ou arquivo bruto.
-- [ ] O banco armazena somente metadados e identificadores de reprodução.
+- [ ] Vídeos com duração igual ou inferior a X seguem o fluxo de vídeos curtos.
+- [ ] Vídeos com duração superior a X seguem o fluxo Mux.
+- [ ] O banco não armazenará vídeo longo como Base64, blob ou arquivo bruto.
+- [ ] O banco armazenará somente metadados e identificadores de reprodução.
 
 ---
 
-## 4. Fluxo de publicação com Mux
+## 5. Fluxo planejado para vídeos longos com Mux
 
 1. [ ] O usuário seleciona ou grava um vídeo.
-2. [ ] O aplicativo identifica a duração antes de finalizar o envio.
-3. [ ] Se o vídeo estiver dentro do limite X, segue o fluxo de vídeo curto.
-4. [ ] Se ultrapassar X, o frontend solicita uma URL de upload direto por meio de uma Edge Function do Neural-iA.
-5. [ ] O arquivo é enviado diretamente para a Mux, sem atravessar o banco.
-6. [ ] A Mux processa o vídeo.
-7. [ ] Um webhook ou Edge Function atualiza os metadados no banco.
-8. [ ] O feed utiliza o playback ID ou a URL autorizada de reprodução da Mux.
-
-### Resultado esperado
-
-O banco guarda somente informações como título, descrição, autor, duração, status, thumbnail, `asset_id` e `playback_id`. O arquivo pesado permanece na infraestrutura de vídeo da Mux.
-
----
-
-## 5. Dados armazenados no Neural-iA
-
-A estrutura final deverá ser definida após auditoria das tabelas existentes, evitando duplicação ou alterações destrutivas.
+2. [ ] O aplicativo identifica a duração.
+3. [ ] O aplicativo compara a duração com X.
+4. [ ] Se estiver dentro de X, utiliza o fluxo de vídeo curto.
+5. [ ] Se ultrapassar X, solicita uma URL de upload direto por uma Edge Function segura.
+6. [ ] O arquivo é enviado diretamente para a Mux.
+7. [ ] A Mux processa o vídeo.
+8. [ ] Um webhook atualiza o status e os identificadores.
+9. [ ] O feed utiliza o playback ID ou URL autorizada.
 
 Metadados previstos:
 
-- [ ] ID da mídia.
-- [ ] ID do usuário ou autor.
-- [ ] Tipo de mídia: vídeo curto, vídeo Mux, imagem com áudio ou conteúdo externo.
-- [ ] Título.
-- [ ] Descrição.
-- [ ] Categoria.
-- [ ] Duração em segundos.
-- [ ] Origem do conteúdo.
-- [ ] URL de origem.
-- [ ] URL da thumbnail.
-- [ ] Mux asset ID, quando aplicável.
-- [ ] Mux playback ID, quando aplicável.
-- [ ] Status: aguardando, processando, pronto, falhou ou removido.
-- [ ] Data de criação.
-- [ ] Data de atualização.
-- [ ] Data de expiração do cache, quando aplicável.
+- título;
+- descrição;
+- autor;
+- duração;
+- thumbnail;
+- status;
+- Mux asset ID;
+- Mux playback ID;
+- data de criação;
+- data de atualização.
 
 ---
 
 ## 6. Controle de consumo do banco — margem operacional de 25%
 
-A meta de **25%** representa uma margem operacional conservadora para o consumo do banco do Neural-iA. Não significa simplesmente permitir 25 chamadas. O cálculo deverá considerar armazenamento, leituras, escritas, largura de banda, consultas simultâneas e limites do plano.
+A margem de **25%** será uma meta de segurança operacional para o consumo do banco e da infraestrutura. Não significa simplesmente permitir 25 chamadas.
 
-- [ ] Definir o orçamento operacional do banco.
+O cálculo deverá considerar:
+
+- leituras;
+- escritas;
+- armazenamento;
+- largura de banda;
+- consultas simultâneas;
+- tamanho das respostas;
+- limites reais do plano utilizado.
+
+Etapas pendentes:
+
+- [ ] Definir o orçamento operacional.
 - [ ] Limitar leituras repetidas.
-- [ ] Usar cache antes de consultar novamente o banco.
-- [ ] Evitar salvar o mesmo conteúdo externo várias vezes.
-- [ ] Usar paginação e quantidade máxima por consulta.
+- [ ] Usar cache antes de consultar novamente.
+- [ ] Evitar duplicação de conteúdo.
+- [ ] Usar paginação.
 - [ ] Selecionar somente as colunas necessárias.
-- [ ] Agrupar eventos de visualização quando possível.
-- [ ] Interromper ou reduzir consultas não essenciais ao atingir o orçamento.
-- [ ] Gerar alertas quando o consumo se aproximar do limite definido.
-
-> A margem de 25% é uma meta de segurança. O limite real deverá ser calculado com base no plano e no consumo medido do Neural-iA.
+- [ ] Agrupar eventos quando possível.
+- [ ] Reduzir consultas não essenciais ao atingir o orçamento.
+- [ ] Criar métricas e alertas de consumo.
 
 ---
 
-## 7. Edge Function de proteção do Neural-iA
+## 7. Gateway e rate limit por aplicativo
 
-A Edge Function deverá atuar como gateway entre o aplicativo, o banco, a Mux e as APIs externas.
+O rate limit será aplicado ao **aplicativo como um todo**, e não individualmente por usuário.
 
-### Correção importante: rate limit por aplicativo
+O usuário final não deverá consultar diretamente as APIs externas. O frontend consumirá o conteúdo disponibilizado pelo cache e pelo gateway do aplicativo.
 
-O rate limit **não será por usuário**. Ele será aplicado ao **aplicativo como um todo**.
+Responsabilidades planejadas:
 
-O usuário final não consulta diretamente as APIs externas. Ele apenas recebe e consome o conteúdo que o aplicativo já colocou no cache.
-
-### Responsabilidades
-
-- [ ] Validar autenticação e permissões quando a operação exigir autenticação.
-- [ ] Aplicar rate limit global por aplicativo.
-- [ ] Aplicar controle individual por fonte de API.
+- [ ] Validar autenticação quando necessário.
+- [ ] Aplicar rate limit global do aplicativo.
+- [ ] Aplicar controle separado por fonte.
 - [ ] Consultar o cache antes de chamar uma API.
-- [ ] Impedir consultas ilimitadas vindas do frontend.
-- [ ] Retornar cache válido quando a API estiver bloqueada ou indisponível.
-- [ ] Registrar métricas essenciais.
-- [ ] Responder com bloqueio temporário quando o orçamento da fonte for atingido.
-- [ ] Controlar a janela de renovação de cada fonte.
-- [ ] Evitar que cada visualização gere uma nova consulta externa.
+- [ ] Impedir chamadas ilimitadas vindas do frontend.
+- [ ] Retornar cache válido quando uma API estiver indisponível.
+- [ ] Registrar consumo e erros.
+- [ ] Pausar uma fonte ao atingir seu orçamento.
+- [ ] Controlar a renovação de cada janela.
+- [ ] Evitar uma consulta externa por visualização.
 
-### Funcionamento simplificado
+Fluxo planejado:
 
 ```text
 APIs externas
      ↓
-Edge Function do Neural-iA
+Gateway / Edge Function do REDE-SOCIOLOCAL
      ↓
 Rate limit global do aplicativo
      ↓
 Cache centralizado
      ↓
-Frontend
+Frontend PWA
      ↓
-Usuários apenas consomem o cache
+Usuários consomem o conteúdo disponível
 ```
-
-> O rate limit será por aplicativo, por fonte e por janela. Não será necessário criar uma regra de rate limit individual para cada usuário.
 
 ---
 
-## 8. Modo Cinema — conceito de cache
+## 8. Modo Cinema — cache por aplicativo
 
-O Modo Cinema deverá apresentar uma biblioteca contínua de conteúdos sem realizar uma chamada externa a cada rolagem ou abertura de card.
+O Modo Cinema deverá apresentar uma sequência contínua de conteúdos sem consultar uma API a cada rolagem.
 
-### Ciclo de funcionamento
+Ciclo planejado:
 
-1. [ ] Consultar as fontes autorizadas somente quando houver orçamento disponível.
-2. [ ] Buscar aproximadamente 100 vídeos ou itens por ciclo.
-3. [ ] Salvar no cache apenas metadados, thumbnails, identificadores e URLs de origem.
-4. [ ] Exibir os itens já armazenados no cache.
-5. [ ] Enquanto houver conteúdo válido, não repetir a consulta da mesma fonte.
-6. [ ] Quando o cache estiver próximo de acabar, verificar a renovação do rate limit.
-7. [ ] Se a janela estiver liberada, consultar novamente a fonte.
-8. [ ] Se a fonte estiver bloqueada, utilizar cache anterior válido ou alternar para outra fonte.
+1. [ ] Verificar se existe cache válido.
+2. [ ] Consultar fontes somente quando houver orçamento.
+3. [ ] Buscar aproximadamente 100 itens por ciclo, conforme a capacidade da fonte.
+4. [ ] Salvar apenas metadados, thumbnails, IDs e URLs de origem.
+5. [ ] Exibir primeiro os itens já armazenados.
+6. [ ] Não repetir a mesma consulta enquanto houver conteúdo válido.
+7. [ ] Verificar a renovação quando o cache estiver próximo de acabar.
+8. [ ] Alternar para outra fonte se a atual estiver bloqueada.
 
-O número **100** é uma referência inicial. Poderá variar por fonte, categoria, espaço disponível e comportamento real do aplicativo.
+O número 100 é apenas uma referência inicial. O valor final dependerá da fonte, do cache e do consumo real.
 
 ---
 
 ## 9. APIs públicas — teto operacional de 70%
 
-As APIs públicas terão como objetivo operacional utilizar no máximo aproximadamente **70% do limite permitido** pela API ou pelo plano.
+A meta inicial para APIs públicas será utilizar no máximo aproximadamente **70% do limite oficial disponível**, respeitando as regras de cada provedor.
 
-Fontes previstas:
+Fontes que poderão ser avaliadas:
 
 - [ ] Internet Archive.
 - [ ] Open Library.
@@ -227,285 +244,230 @@ Fontes previstas:
 
 Regras:
 
-- [ ] Converter o percentual em quantidade real por fonte.
-- [ ] Respeitar o limite oficial de cada API.
-- [ ] Consultar somente quando houver orçamento disponível.
-- [ ] Armazenar os resultados no cache.
-- [ ] Pausar consultas ao atingir o orçamento da janela.
-- [ ] Retomar somente após a renovação da janela.
+- [ ] Confirmar o limite real de cada fonte.
+- [ ] Converter o percentual em quantidade por janela.
+- [ ] Consultar somente com orçamento disponível.
+- [ ] Salvar os resultados no cache.
+- [ ] Pausar ao atingir o orçamento.
+- [ ] Retomar após a renovação.
 
 ---
 
 ## 10. APIs privadas ou restritas — teto operacional de 15%
 
-As APIs privadas, restritas ou de maior sensibilidade terão uma utilização inicial conservadora de aproximadamente **15% do limite disponível**.
+Para APIs privadas, restritas ou mais sensíveis, a meta inicial será utilizar aproximadamente **15% do limite disponível**.
 
-Fontes previstas:
+Fontes que poderão ser avaliadas:
 
 - [ ] YouTube.
-- [ ] PeerTube, conforme a instância utilizada.
+- [ ] PeerTube, conforme a instância.
 - [ ] Dailymotion.
 - [ ] Vimeo.
 
-Essas fontes poderão alimentar cards de:
+A integração deverá respeitar:
 
-- [ ] Filmes.
-- [ ] Séries.
-- [ ] Desenhos.
-- [ ] Esportes.
-- [ ] Música.
-- [ ] Conteúdo audiovisual.
+- termos de uso;
+- limites oficiais;
+- regras de autenticação;
+- permissões de reprodução;
+- embeds autorizados;
+- direitos e disponibilidade do conteúdo.
 
-A reprodução deverá respeitar o embed, a URL autorizada, os termos e as limitações de cada provedor.
+Após atingir o orçamento:
 
-### Regra de pausa
-
-Depois de atingir o orçamento da fonte:
-
-- [ ] Pausar novas consultas dessa fonte.
-- [ ] Continuar exibindo o cache existente.
-- [ ] Não renovar chamadas a cada visualização.
-- [ ] Verificar a próxima janela de renovação.
-- [ ] Retomar consultas somente quando o rate limit for liberado.
+- [ ] pausar novas consultas;
+- [ ] continuar exibindo o cache existente;
+- [ ] não consultar novamente a cada visualização;
+- [ ] aguardar a próxima janela;
+- [ ] retomar somente após a liberação.
 
 ---
 
 ## 11. Modelo de janela e renovação
 
-Cada fonte deverá possuir uma configuração semelhante a:
+Cada fonte deverá possuir configurações semelhantes a:
 
-- [ ] Limite oficial conhecido da fonte.
-- [ ] Percentual operacional permitido.
-- [ ] Quantidade calculada por janela.
-- [ ] Quantidade consumida.
-- [ ] Início da janela.
-- [ ] Fim da janela.
-- [ ] Data/hora de renovação.
-- [ ] Tempo mínimo entre chamadas.
-- [ ] Status: disponível, próximo do limite ou bloqueado temporariamente.
+- [ ] limite oficial;
+- [ ] percentual operacional permitido;
+- [ ] quantidade calculada por janela;
+- [ ] quantidade consumida;
+- [ ] início da janela;
+- [ ] fim da janela;
+- [ ] próxima renovação;
+- [ ] intervalo mínimo entre chamadas;
+- [ ] status da fonte.
 
-### Exemplos
+Estados previstos:
 
-```text
-API pública:
-Até 70% → coleta → cache → pausa → renovação → nova coleta
-
-API privada:
-Até 15% → coleta controlada → cache → pausa → renovação → nova coleta
-```
-
-Durante a pausa, o feed deverá continuar utilizando:
-
-- [ ] Conteúdos já armazenados.
-- [ ] Outras fontes disponíveis.
-- [ ] Publicações próprias.
-- [ ] Imagens com áudio próprio.
+- disponível;
+- próximo do limite;
+- pausado;
+- aguardando renovação;
+- indisponível;
+- erro temporário.
 
 ---
 
 ## 12. Cards e experiência do usuário
 
-- [ ] Cards externos exibem thumbnail, título, categoria, duração e origem.
-- [ ] Ao tocar no card, o aplicativo abre o conteúdo por embed, player autorizado ou página de origem.
-- [ ] O sistema aceita que alguns conteúdos expirem, sejam removidos ou exijam abertura no provedor.
-- [ ] O usuário não vê o rate limit interno.
-- [ ] O usuário não consulta diretamente as APIs externas.
-- [ ] O usuário apenas consome os itens disponíveis no cache.
-- [ ] Quando não houver vídeo, o feed poderá apresentar imagem com áudio pré-selecionado.
-- [ ] A biblioteca de aproximadamente 15 áudios próprios poderá ser associada a imagens.
-- [ ] O usuário deverá perceber continuidade mesmo quando as APIs estiverem em pausa.
+Os cards externos deverão, quando os dados estiverem disponíveis, apresentar:
+
+- [ ] thumbnail;
+- [ ] título;
+- [ ] categoria;
+- [ ] duração;
+- [ ] origem;
+- [ ] ação de reprodução autorizada.
+
+Ao tocar no card:
+
+- [ ] abrir embed autorizado;
+- [ ] abrir player permitido; ou
+- [ ] abrir a página de origem.
+
+O usuário não deverá visualizar os detalhes internos de rate limit. Quando não houver vídeo disponível, o feed poderá utilizar:
+
+- [ ] conteúdo em cache;
+- [ ] outra fonte disponível;
+- [ ] publicação própria;
+- [ ] imagem com áudio próprio;
+- [ ] imagem estática como último fallback.
 
 ---
 
-## 13. Ordem de preenchimento do feed
+## 13. Ordem planejada de preenchimento do feed
 
 1. [x] Publicações próprias já existentes.
-2. [x] Vídeos próprios curtos, conforme o fluxo atual do frontend.
+2. [x] Vídeos próprios curtos, conforme o fluxo atual.
 3. [ ] Vídeos longos processados pela Mux.
 4. [ ] Conteúdos válidos do cache.
-5. [ ] Conteúdos externos recém-consultados, somente quando houver orçamento.
-6. [ ] Imagem com áudio próprio.
-7. [ ] Imagem estática como último fallback.
+5. [ ] Conteúdos externos recém-consultados, somente com orçamento.
+6. [ ] Imagens com áudio próprio.
+7. [ ] Imagens estáticas como último fallback.
 
 ---
 
 ## 14. Cache e deduplicação
 
 - [ ] Usar o identificador externo como chave de deduplicação.
-- [ ] Não inserir novamente o mesmo item a cada renovação.
-- [ ] Guardar data de coleta.
-- [ ] Guardar última exibição, quando necessário.
-- [ ] Guardar data de expiração.
-- [ ] Separar cache de descoberta do histórico de interação.
-- [ ] Aplicar TTL diferente por fonte.
-- [ ] Não baixar o arquivo original quando thumbnail, metadados e URL forem suficientes.
-- [ ] Definir limite máximo de itens por fonte.
-- [ ] Remover ou arquivar itens expirados de maneira controlada.
+- [ ] Não salvar novamente o mesmo item em cada renovação.
+- [ ] Registrar a data de coleta.
+- [ ] Registrar a data de expiração.
+- [ ] Atualizar metadados sem duplicar o conteúdo.
+- [ ] Remover ou marcar itens expirados sem quebrar o feed.
+- [ ] Manter cache antigo válido quando uma fonte estiver temporariamente bloqueada.
 
 ---
 
-## 15. Relação com o Neural-iA
+## 15. Segurança
 
-O Neural-iA é o projeto Supabase de referência desta arquitetura. Suas Edge Functions poderão funcionar como camada de integração, segurança, cache, rate limit e comunicação com a Mux e com as APIs externas.
-
-- [x] Projeto de referência definido como Neural-iA.
-- [x] URL informada registrada neste documento.
-- [x] OIO TOC CORE excluído deste escopo.
-- [ ] Auditar as tabelas existentes antes de criar novas estruturas.
-- [ ] Auditar as Edge Functions existentes antes de adaptar ou criar funções.
-- [ ] Não alterar tabelas, schemas, secrets ou Edge Functions sem autorização específica.
-- [ ] Manter a implementação incremental.
-- [ ] Preservar o que já funciona.
-
----
-
-## 16. Segurança
-
-- [ ] Manter chaves da Mux e das APIs nos secrets das Edge Functions.
-- [ ] Nunca expor `service_role key` ou chaves secretas no frontend.
-- [ ] Validar JWT e permissões nas funções que gravam dados.
-- [ ] Manter RLS nas tabelas acessíveis ao cliente.
-- [ ] Validar tipo, tamanho e duração dos arquivos.
-- [ ] Validar webhooks da Mux.
-- [ ] Não permitir que o frontend consulte diretamente todas as APIs sem controle.
-- [ ] Validar URLs e identificadores externos.
-- [ ] Evitar armazenar dados sensíveis desnecessários nos logs.
+- [ ] Não colocar chaves privadas no frontend.
+- [ ] Não colocar `service_role` no GitHub Pages.
+- [ ] Usar Edge Functions para operações que exigem segredo.
+- [ ] Validar URLs de reprodução e upload.
+- [ ] Validar tamanho e tipo dos arquivos.
+- [ ] Aplicar limites de upload.
+- [ ] Aplicar RLS nas tabelas privadas.
+- [ ] Não permitir que o frontend altere diretamente contadores de consumo.
+- [ ] Registrar erros sem expor segredos.
 
 ---
 
-## 17. Fases de implementação
+## 16. Fases de implementação
 
-### Fase 1 — Auditoria e definição
+### Fase 1 — Auditoria
 
-- [ ] Auditar o repositório atual.
-- [ ] Identificar publicação, feed, player, cache e integração existentes.
-- [ ] Auditar tabelas e Edge Functions do Neural-iA.
-- [ ] Definir o valor X de duração.
-- [ ] Definir o formato final dos metadados.
+- [ ] Auditar todos os arquivos atuais.
+- [ ] Identificar como o feed é montado.
+- [ ] Identificar como fotos e vídeos são armazenados hoje.
+- [ ] Não alterar o UX existente sem necessidade.
 
-### Fase 2 — Mux
+### Fase 2 — Integração Supabase
 
-- [ ] Implementar detecção de duração no frontend.
-- [ ] Criar ou adaptar o upload direto para a Mux.
-- [ ] Implementar webhook e atualização de status.
-- [ ] Exibir vídeos Mux no feed.
+- [ ] Confirmar o projeto `svqocghixhrpqaxucubn.supabase.co`.
+- [ ] Criar a estrutura mínima necessária.
+- [ ] Configurar autenticação e RLS, se aplicável.
+- [ ] Conectar o frontend.
+- [ ] Testar leitura e gravação.
 
-### Fase 3 — Cache e gateway
+### Fase 3 — Mídia e Mux
 
-- [ ] Criar o gateway de descoberta.
-- [ ] Criar o cache por aplicativo.
-- [ ] Implementar deduplicação.
-- [ ] Implementar rate limit por fonte e janela.
-- [ ] Implementar renovação das janelas.
-- [ ] Implementar fallback quando uma fonte estiver bloqueada.
+- [ ] Definir X.
+- [ ] Detectar duração.
+- [ ] Implementar upload direto.
+- [ ] Implementar processamento e webhook.
+- [ ] Exibir vídeos prontos no feed.
 
-### Fase 4 — APIs públicas
+### Fase 4 — Cache e APIs
 
-- [ ] Integrar Internet Archive.
-- [ ] Integrar Open Library.
-- [ ] Integrar Gutendex.
-- [ ] Integrar Wikipedia.
-- [ ] Integrar Wikimedia Commons.
-- [ ] Integrar NASA.
-- [ ] Integrar Crossref.
-- [ ] Integrar OpenAlex.
+- [ ] Criar gateway.
+- [ ] Criar cache por aplicativo.
+- [ ] Criar rate limit por fonte e janela.
+- [ ] Integrar primeiro APIs públicas.
+- [ ] Integrar depois APIs privadas ou restritas.
 
-### Fase 5 — APIs privadas
+### Fase 5 — Modo Cinema e fallback
 
-- [ ] Integrar YouTube com orçamento operacional de 15%.
-- [ ] Integrar PeerTube com orçamento operacional de 15%.
-- [ ] Integrar Dailymotion com orçamento operacional de 15%.
-- [ ] Integrar Vimeo com orçamento operacional de 15%.
-- [ ] Implementar cards de filmes, séries, desenhos, esportes e música.
+- [ ] Criar carregamento contínuo do cache.
+- [ ] Criar deduplicação.
+- [ ] Criar cards externos.
+- [ ] Criar imagem com áudio próprio.
+- [ ] Criar fallback para imagem estática.
 
-### Fase 6 — Modo Cinema e fallback
+### Fase 6 — Testes
 
-- [ ] Implementar Modo Cinema.
-- [ ] Implementar cache inicial de aproximadamente 100 itens por ciclo.
-- [ ] Implementar imagem com áudio próprio.
-- [ ] Integrar biblioteca de áudios.
-- [ ] Implementar rotação e deduplicação.
-
-### Fase 7 — Testes e estabilização
-
-- [ ] Testar renovação do rate limit.
-- [ ] Testar bloqueio temporário de uma API.
-- [ ] Testar cache sem novas chamadas externas.
-- [ ] Testar múltiplos usuários consumindo o mesmo cache.
-- [ ] Testar falhas da Mux.
-- [ ] Testar vídeos acima e abaixo do limite X.
-- [ ] Testar consumo do banco.
-- [ ] Testar funcionamento offline e fallback.
-- [ ] Atualizar este documento com os resultados.
+- [ ] Testar upload curto.
+- [ ] Testar upload acima de X.
+- [ ] Testar falha de upload.
+- [ ] Testar renovação de janela.
+- [ ] Testar cache cheio e cache vazio.
+- [ ] Testar API indisponível.
+- [ ] Testar duplicação.
+- [ ] Testar segurança e permissões.
 
 ---
 
-## 18. Estimativa de tempo
+## 17. Estimativa preliminar
 
-Considerando o aproveitamento do frontend atual e das Edge Functions existentes do Neural-iA:
+A estimativa somente poderá ser refinada depois da auditoria real do código e da confirmação do projeto Supabase.
 
-| Etapa | Estimativa aproximada |
-|---|---:|
-| Auditoria do repositório e fluxo atual | 1 a 2 dias |
-| Definição do limite X e fluxo Mux | 1 dia |
-| Implementação do cache por aplicativo | 2 a 4 dias |
-| Edge Function de controle de cota | 1 a 3 dias |
-| Integração com APIs públicas | 2 a 4 dias |
-| Integração com APIs privadas | 2 a 4 dias |
-| Cards do Modo Cinema e fallback de imagem/áudio | 2 a 4 dias |
-| Testes de renovação, cache e falhas | 2 a 3 dias |
+- Auditoria do frontend: 1–2 dias.
+- Integração inicial do Supabase: 1–3 dias.
+- Limite X e fluxo de mídia: 1–2 dias.
+- Integração Mux: 2–5 dias.
+- Cache e rate limit: 2–5 dias.
+- APIs públicas: 2–4 dias.
+- APIs privadas ou restritas: 2–4 dias.
+- Cards e fallback: 2–4 dias.
+- Testes: 2–3 dias.
 
-### Estimativa geral
-
-- **MVP funcional:** aproximadamente 10 a 15 dias de trabalho.
-- **Versão mais refinada e testada:** aproximadamente 3 a 4 semanas.
-
-A implementação será incremental. Cada fase deverá ser testada antes de iniciar a próxima.
+Esses prazos são apenas referências de planejamento, não uma promessa de entrega.
 
 ---
 
-## 19. Regras fundamentais
+## 18. Regras fundamentais
 
-- [ ] Vídeos longos não devem ser armazenados diretamente no banco.
-- [ ] O frontend não deve chamar APIs externas a cada rolagem.
-- [ ] O cache deve ser consultado antes de novas chamadas.
-- [ ] O rate limit será por aplicativo, não por usuário.
-- [ ] Os limites de 15%, 25% e 70% devem ser convertidos em números reais.
-- [ ] Nenhuma chave privada deve ser exposta.
-- [ ] O OIO TOC CORE não faz parte desta implementação.
-- [ ] O projeto Supabase de referência é o Neural-iA.
-- [ ] Nenhuma alteração destrutiva deve ser feita no Neural-iA.
-- [ ] O feed deve continuar funcionando mesmo quando uma API estiver bloqueada.
-- [ ] Os usuários devem consumir somente o cache implantado pelo aplicativo.
-- [ ] O mesmo conteúdo em cache deve poder ser consumido por muitos usuários sem multiplicar as chamadas às APIs.
-
----
-
-## 20. Resultado esperado
-
-O resultado será um aplicativo com sensação de conteúdo contínuo, mas com consumo governado:
-
-- O **Neural-iA** ficará responsável por metadados, autenticação, controle, cache e Edge Functions.
-- A **Mux** ficará responsável pelo processamento e entrega dos vídeos longos.
-- As **APIs externas** fornecerão descoberta de conteúdo dentro de janelas controladas.
-- O **frontend** exibirá o conteúdo disponível no cache.
-- Os **usuários** não controlarão nem consumirão diretamente o rate limit das APIs.
-- O banco permanecerá protegido contra armazenamento indiscriminado de vídeos e consultas excessivas.
+1. O projeto principal é o **REDE-SOCIOLOCAL**.
+2. O frontend atual será aproveitado; não haverá reconstrução desnecessária.
+3. O Supabase ainda será integrado.
+4. A URL planejada do Supabase é `https://svqocghixhrpqaxucubn.supabase.co/`.
+5. Nenhuma tabela ou Edge Function deve ser declarada como existente sem verificação.
+6. O rate limit será por aplicativo, por fonte e por janela.
+7. O cache será centralizado por aplicativo, não por usuário.
+8. O usuário final consumirá o cache, não consultará diretamente as APIs externas.
+9. Vídeos longos não serão armazenados como Base64 no banco.
+10. O projeto OIO TOC CORE está fora do escopo.
+11. Nenhuma etapa futura deve ser marcada como concluída antes de ser implementada e testada.
 
 ---
 
-## 21. Histórico de atualizações
+## Histórico de correções
 
-| Data | Etapa | Alteração |
-|---|---|---|
-| 2026-09-14 | Documento inicial | Documento criado com arquitetura de Mux, cache, Modo Cinema e rate limit por aplicativo. |
-| 2026-09-14 | Correção de escopo | Confirmado que o projeto de referência é o Neural-iA e que o OIO TOC CORE está fora do escopo. |
-| 2026-09-14 | Correção do rate limit | Alterado de rate limit por usuário para rate limit global por aplicativo e por fonte. |
+### 2026-09-14 — Correção de escopo
 
----
-
-## Nota técnica final
-
-Os percentuais de **15%**, **25%** e **70%** são metas operacionais iniciais. Antes da implementação definitiva, deverão ser convertidos em limites concretos com base nos limites oficiais de cada API, no plano e consumo do Neural-iA e na capacidade real da conta Mux.
-
-Este documento deverá ser atualizado após cada etapa concluída, mantendo os itens concluídos marcados com `- [x]` e os itens pendentes com `- [ ]`.
+- Removida a afirmação incorreta de que o REDE-SOCIOLOCAL já possuía Supabase integrado.
+- Alterado o status do Supabase para **integração planejada / não iniciada**.
+- Separado o frontend existente das funcionalidades futuras.
+- Mantida a URL do Supabase como destino planejado da integração.
+- Reforçado que o OIO TOC CORE não faz parte deste projeto.
+- Corrigidas as marcações `[x]` e `[ ]` para não apresentar arquitetura futura como funcionalidade existente.
