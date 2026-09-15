@@ -1,0 +1,10 @@
+{
+  "name": "rede-sociolocal",
+  "version": "1.0.0",
+  "dependencies": {
+    "@vercel/blob": "^0.22.0",
+    "ffmpeg-static": "^5.2.0",
+    "fluent-ffmpeg": "^2.1.3"
+  }
+}
+
