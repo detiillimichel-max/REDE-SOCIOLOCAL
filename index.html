@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#000000">
-  <meta name="description" content="Visualizador privado de fotos e vídeos locais">
+  <meta name="description" content="Visualizador social de fotos e vídeos">
   <title>Meu Feed Social</title>
-  <link rel="stylesheet" href="css/styles.css?v=engajamento2">
+  <link rel="stylesheet" href="css/styles.css?v=cloud1">
   <link rel="manifest" href="manifest.json">
 </head>
 <body>
@@ -36,13 +36,14 @@
   <main id="feed-container" class="feed-container">
     <div class="empty-state" id="empty-state">
       <p>Nenhuma foto ou vídeo selecionado.</p>
-      <p>Use os quatro botões para escolher fotos ou vídeos da galeria, tirar fotos ou gravar vídeos.</p>
-      <small>As mídias são exibidas somente neste dispositivo e não são enviadas para servidor.</small>
+      <p>Escolha uma mídia da galeria ou use os botões de câmera.</p>
+      <small>Agora as mídias selecionadas são enviadas ao Vercel Blob e seus metadados são registrados no Neon.</small>
     </div>
   </main>
 
   <script src="https://unpkg.com/lucide@latest"></script>
-  <script src="js/app.js?v=engajamento2"></script>
-  <script src="js/engajamento.js?v=engajamento2"></script>
+  <script src="js/media-cloud.js?v=cloud1"></script>
+  <script src="js/app.js?v=cloud1"></script>
+  <script src="js/engajamento.js?v=cloud1"></script>
 </body>
 </html>
