@@ -5,7 +5,8 @@
 
   async function obterClienteBlob() {
     if (!blobClientPromise) {
-      blobClientPromise = import('https://esm.sh/@vercel/blob/client');
+      // Mantém a versão do cliente alinhada com a versão usada no backend.
+      blobClientPromise = import('https://esm.sh/@vercel/blob@2.6.1/client');
     }
     return blobClientPromise;
   }
