@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "dependencies": {
     "@neondatabase/serverless": "^0.10.4",
-    "@vercel/blob": "^0.22.0",
+    "@vercel/blob": "^2.6.1",
     "ffmpeg-static": "^5.2.0",
     "fluent-ffmpeg": "^2.1.3"
   }
