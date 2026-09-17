@@ -16,16 +16,18 @@ export default async function handler(req, res) {
     });
   }
 
-  const token = process.env.REDE_SOCIOLOCAL_PUBLIC_READ_WRITE_TOKEN;
+  const token =
+    process.env.BLOB_READ_WRITE_TOKEN ||
+    process.env.REDE_SOCIOLOCAL_PUBLIC_READ_WRITE_TOKEN;
 
   if (!token) {
     console.error(
-      'Variável REDE_SOCIOLOCAL_PUBLIC_READ_WRITE_TOKEN não configurada.'
+      'Variáveis BLOB_READ_WRITE_TOKEN e REDE_SOCIOLOCAL_PUBLIC_READ_WRITE_TOKEN não configuradas.'
     );
 
     return res.status(500).json({
       ok: false,
-      error: 'Token do Blob público não configurado na Vercel.'
+      error: 'Token do Blob não configurado na Vercel.'
     });
   }
 
