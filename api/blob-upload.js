@@ -16,18 +16,18 @@ export default async function handler(req, res) {
     });
   }
 
+  // Prioriza explicitamente o token do Blob público usado pelo projeto.
+  // O token BLOB_READ_WRITE_TOKEN pode pertencer ao Blob antigo/privado.
   const token =
-    process.env.BLOB_READ_WRITE_TOKEN ||
-    process.env.REDE_SOCIOLOCAL_PUBLIC_READ_WRITE_TOKEN;
+    process.env.REDE_SOCIOLOCAL_PUBLIC_READ_WRITE_TOKEN ||
+    process.env.BLOB_READ_WRITE_TOKEN;
 
   if (!token) {
-    console.error(
-      'Variáveis BLOB_READ_WRITE_TOKEN e REDE_SOCIOLOCAL_PUBLIC_READ_WRITE_TOKEN não configuradas.'
-    );
+    console.error('Token do Blob público não encontrado.');
 
     return res.status(500).json({
       ok: false,
-      error: 'Token do Blob não configurado na Vercel.'
+      error: 'Token do Blob público não configurado na Vercel.'
     });
   }
 
@@ -49,26 +49,19 @@ export default async function handler(req, res) {
       token,
 
       onBeforeGenerateToken: async () => ({
-        allowedContentTypes: ['video/*', 'image/*'],
-        maximumSizeInBytes: 100 * 1024 * 1024,
+        allowedContentTypes: ['image/*'],
+        maximumSizeInBytes: 25 * 1024 * 1024,
         addRandomSuffix: true,
         tokenPayload: JSON.stringify({
-          storage: 'rede-sociolocal-public'
+          storage: 'rede-sociolocal-public',
+          mediaType: 'image'
         })
-      }),
-
-      onUploadCompleted: async () => {
-        // Os metadados são registrados separadamente pelo frontend
-        // através de /api/media-create.
-      }
+      })
     });
 
     return res.status(200).json(jsonResponse);
   } catch (error) {
-    console.error(
-      'Erro ao preparar upload para o Vercel Blob:',
-      error
-    );
+    console.error('Erro ao preparar upload para o Vercel Blob:', error);
 
     return res.status(500).json({
       ok: false,
