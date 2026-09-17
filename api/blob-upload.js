@@ -1,9 +1,16 @@
 import { handleUpload } from '@vercel/blob/client';
 
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: '25mb'
+    }
+  }
+};
+
 export default async function handler(request, response) {
   if (request.method !== 'POST') {
     response.setHeader('Allow', 'POST');
-
     return response.status(405).json({
       ok: false,
       error: 'Método não permitido. Use POST.'
@@ -14,7 +21,6 @@ export default async function handler(request, response) {
 
   if (!token) {
     console.error('Token do Blob público não encontrado.');
-
     return response.status(500).json({
       ok: false,
       error: 'Token do Blob público não configurado na Vercel.'
@@ -22,7 +28,9 @@ export default async function handler(request, response) {
   }
 
   try {
-    const body = request.body;
+    const body = typeof request.body === 'string'
+      ? JSON.parse(request.body)
+      : (request.body || {});
 
     const jsonResponse = await handleUpload({
       body,
@@ -58,11 +66,9 @@ export default async function handler(request, response) {
     return response.status(200).json(jsonResponse);
   } catch (error) {
     console.error('Erro na Function api/blob-upload:', error);
-
     return response.status(400).json({
       ok: false,
-      error: error?.message ||
-        'Não foi possível preparar o upload da foto.'
+      error: error?.message || 'Não foi possível preparar o upload da foto.'
     });
   }
 }
