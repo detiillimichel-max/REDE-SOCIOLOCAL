@@ -11,6 +11,8 @@ body {
   min-height: 100vh;
 }
 
+body.mux-modal-open { overflow: hidden; }
+
 .app-header {
   position: sticky;
   top: 0;
@@ -60,6 +62,8 @@ body {
 .btn-select:hover { background: #087dcc; }
 .btn-secondary { background: #242424; border: 1px solid #3b3b3b; }
 .btn-secondary:hover { background: #333; }
+.btn-mux { background: #7c3aed; }
+.btn-mux:hover { background: #6d28d9; }
 .btn-select svg { width: 24px; height: 24px; stroke-width: 2.4; }
 
 .feed-container {
@@ -110,7 +114,6 @@ body {
   background: #050505;
 }
 
-/* Quatro ações reais, fixadas na lateral direita de cada publicação. */
 .post-actions {
   position: absolute;
   top: 50%;
@@ -144,21 +147,8 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
-.action-btn svg {
-  display: block;
-  width: 27px;
-  height: 27px;
-  stroke: currentColor;
-  stroke-width: 2.2;
-}
-
-.action-btn:hover,
-.action-btn:focus-visible,
-.action-btn.is-active {
-  background: rgba(255,255,255,.16);
-  outline: none;
-}
-
+.action-btn svg { display: block; width: 27px; height: 27px; stroke: currentColor; stroke-width: 2.2; }
+.action-btn:hover, .action-btn:focus-visible, .action-btn.is-active { background: rgba(255,255,255,.16); outline: none; }
 .action-btn.is-active[data-engajamento="curtir"] { color: #22c55e; }
 .action-btn.is-active[data-engajamento="nao-curtir"] { color: #ef4444; }
 .action-btn:active { transform: scale(.92); }
@@ -187,6 +177,105 @@ body {
 .comments-input { width: 100%; resize: vertical; padding: 12px; border: 1px solid #444; border-radius: 10px; background: #0b0b0b; color: #fff; font: inherit; }
 .comments-send { padding: 12px; border: 0; border-radius: 10px; background: #0095f6; color: #fff; font-weight: 700; cursor: pointer; }
 
+.mux-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  background: rgba(0, 0, 0, .78);
+  backdrop-filter: blur(8px);
+}
+
+.mux-modal[hidden] { display: none; }
+
+.mux-panel {
+  width: min(100%, 560px);
+  max-height: 92vh;
+  overflow-y: auto;
+  background: #111820;
+  border: 1px solid #2d3a46;
+  border-radius: 24px;
+  box-shadow: 0 20px 70px rgba(0,0,0,.55);
+}
+
+.mux-panel-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 22px 22px 16px;
+}
+
+.mux-kicker, .mux-stage-label {
+  display: block;
+  color: #55bdf5;
+  font-size: .75rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.mux-panel h2 { margin-top: 5px; font-size: 1.45rem; }
+.mux-close { width: 40px; height: 40px; border: 0; border-radius: 12px; background: #25313b; color: #fff; cursor: pointer; }
+.mux-close svg { width: 22px; height: 22px; }
+
+.mux-steps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  padding: 0 22px 22px;
+  border-bottom: 1px solid #293641;
+}
+
+.mux-step { display: flex; flex-direction: column; align-items: center; gap: 7px; color: #70808d; font-size: .72rem; text-align: center; }
+.mux-step strong { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: #26333e; color: #9caab5; }
+.mux-step.is-active { color: #dff4ff; }
+.mux-step.is-active strong { background: #36aeea; color: #06131b; }
+
+.mux-stage { padding: 24px 22px 26px; }
+.mux-stage h3 { margin-top: 6px; font-size: 1.2rem; }
+.mux-stage p { margin-top: 8px; color: #9eacb7; line-height: 1.5; font-size: .92rem; }
+
+.mux-file-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  width: 100%;
+  margin-top: 22px;
+  padding: 15px 18px;
+  border: 1px solid #42b5ee;
+  border-radius: 14px;
+  background: #17384a;
+  color: #e9f8ff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.mux-file-button:hover { background: #1d4b63; }
+.mux-file-button svg { width: 21px; height: 21px; }
+
+.mux-selected-file {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
+  padding: 14px;
+  border: 1px solid #344957;
+  border-radius: 14px;
+  background: #17232c;
+}
+
+.mux-selected-file > svg { width: 28px; height: 28px; color: #55bdf5; flex: 0 0 auto; }
+.mux-selected-file strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mux-selected-file small { display: block; margin-top: 4px; color: #93a5b1; }
+
+.mux-notice { display: flex; gap: 10px; margin-top: 18px; padding: 13px; border-radius: 12px; background: #19232b; color: #9fb1bd; font-size: .82rem; line-height: 1.45; }
+.mux-notice svg { width: 18px; height: 18px; color: #55bdf5; flex: 0 0 auto; }
+
 @media (max-width: 560px) {
   .app-header { align-items: flex-start; flex-direction: column; gap: 10px; }
   .media-actions { width: 100%; justify-content: flex-start; }
@@ -195,4 +284,8 @@ body {
   .post-actions { right: 7px; gap: 6px; padding: 5px; }
   .action-btn { width: 40px; height: 40px; }
   .action-btn svg { width: 24px; height: 24px; }
+  .mux-modal { padding: 10px; align-items: flex-end; }
+  .mux-panel { max-height: 94vh; border-radius: 22px 22px 14px 14px; }
+  .mux-panel-header, .mux-stage { padding-left: 18px; padding-right: 18px; }
+  .mux-steps { padding-left: 18px; padding-right: 18px; }
 }
