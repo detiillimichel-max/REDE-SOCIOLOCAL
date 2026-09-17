@@ -31,17 +31,16 @@
   }
 
   async function registrarMetadados(file, blob) {
-    const isVideo = file.type.startsWith('video/');
-    const duration = await obterDuracao(file, isVideo);
+    const duration = await obterDuracao(file, false);
 
     const response = await fetch('/api/media-create', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        media_type: isVideo ? 'video' : 'image',
+        media_type: 'image',
         title: file.name,
         description: null,
-        category: isVideo ? 'video' : 'foto',
+        category: 'foto',
         duration_seconds: duration,
         source: 'blob',
         source_url: blob.url,
@@ -80,6 +79,10 @@
   }
 
   async function uploadAndRegister(file) {
+    if (!file || !file.type.startsWith('image/')) {
+      throw new Error('Vídeos aguardam a integração com o Mux. O Blob está reservado para fotos.');
+    }
+
     const blob = await enviarParaBlob(file);
     return registrarMetadados(file, blob);
   }
