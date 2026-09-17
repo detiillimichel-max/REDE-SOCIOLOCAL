@@ -43,68 +43,179 @@
         const files = Array.from(event.target.files || []);
         if (!files.length) return;
 
-        if (emptyState) emptyState.hidden = true;
+        atualizarEmptyState(feedContainer, emptyState);
 
         files.forEach((file) => {
           if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) return;
-          adicionarMidia(file, feedContainer);
+          adicionarMidiaLocal(file, feedContainer, emptyState);
         });
 
         input.value = '';
       });
     });
+
+    carregarFeedExistente(feedContainer, emptyState);
   }
 
-  function adicionarMidia(file, feedContainer) {
+  // ============================================================
+  // Carregamento do feed já persistido no Neon (GET /api/media-list)
+  // ============================================================
+
+  async function carregarFeedExistente(feedContainer, emptyState) {
+    try {
+      const response = await fetch('/api/media-list', {
+        method: 'GET',
+        headers: { Accept: 'application/json' }
+      });
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok || !data.ok) {
+        console.error('Não foi possível carregar o feed existente:', data?.error);
+        return;
+      }
+
+      const itens = Array.isArray(data.media) ? data.media : [];
+
+      itens.forEach((media) => {
+        const card = criarCardServidor(media);
+        feedContainer.appendChild(card);
+      });
+
+      atualizarEmptyState(feedContainer, emptyState);
+    } catch (error) {
+      console.error('Falha ao buscar /api/media-list:', error);
+    }
+  }
+
+  function criarCardServidor(media) {
+    const isVideo = String(media.media_type || '').includes('video');
+    const src = media.storage_url || media.thumbnail_url || '';
+
+    const card = montarEstruturaCard({
+      titulo: media.title || 'Sem título',
+      isVideo,
+      src,
+      mediaId: media.id
+    });
+
+    const status = card.querySelector('.post-upload-status');
+    status.textContent = 'Publicado e registrado no Neon.';
+    status.classList.add('is-success');
+
+    return card;
+  }
+
+  // ============================================================
+  // Envio de nova mídia (galeria/câmera) com fila local no IndexedDB
+  // ============================================================
+
+  function adicionarMidiaLocal(file, feedContainer, emptyState) {
     const mediaUrl = URL.createObjectURL(file);
-    const card = createPostCard(file, mediaUrl);
+    const isVideo = file.type.startsWith('video/');
+
+    const card = montarEstruturaCard({
+      titulo: file.name,
+      isVideo,
+      src: mediaUrl,
+      mediaId: `local-${Date.now()}-${Math.random().toString(36).slice(2)}`
+    });
+
     feedContainer.appendChild(card);
 
     const status = card.querySelector('.post-upload-status');
     const mediaElement = card.querySelector('.post-media');
 
+    processarEnvio(file, card, status, mediaElement, mediaUrl, feedContainer, emptyState);
+  }
+
+  async function processarEnvio(file, card, status, mediaElement, mediaUrl, feedContainer, emptyState) {
+    let idLocal = null;
+    const temFilaLocal = Boolean(window.REDE_SOCIOLOCAL_MEDIA_DB);
+
+    if (temFilaLocal) {
+      try {
+        idLocal = await window.REDE_SOCIOLOCAL_MEDIA_DB.salvar(file);
+      } catch (error) {
+        console.error('Não foi possível guardar a mídia na fila local:', error);
+        status.textContent = error?.message || 'Não foi possível guardar a mídia localmente.';
+        status.classList.add('is-error');
+        // Mesmo sem a fila local, tentamos seguir com o envio direto.
+      }
+    }
+
     if (!window.REDEMediaCloud || typeof window.REDEMediaCloud.uploadAndRegister !== 'function') {
       status.textContent = 'Pré-visualização local. Módulo de envio indisponível.';
       status.classList.add('is-error');
+      if (idLocal) {
+        await marcarStatusLocal(idLocal, 'failed');
+      }
       return;
     }
 
     status.textContent = 'Enviando para o armazenamento...';
     status.classList.add('is-uploading');
 
-    window.REDEMediaCloud.uploadAndRegister(file)
-      .then((media) => {
-        if (media?.storage_url) {
-          mediaElement.src = media.storage_url;
-        }
+    if (idLocal) {
+      await marcarStatusLocal(idLocal, 'processing');
+    }
 
-        card.querySelectorAll('[data-engajamento]').forEach((button) => {
-          button.dataset.mediaId = media.id;
-        });
+    try {
+      const media = await window.REDEMediaCloud.uploadAndRegister(file);
 
-        status.textContent = 'Publicado e registrado no Neon.';
-        status.classList.remove('is-uploading');
-        status.classList.add('is-success');
-        URL.revokeObjectURL(mediaUrl);
-      })
-      .catch((error) => {
-        console.error('Falha ao enviar mídia:', error);
-        status.textContent = `Falha no envio: ${error.message || 'tente novamente.'}`;
-        status.classList.remove('is-uploading');
-        status.classList.add('is-error');
+      if (media?.storage_url) {
+        mediaElement.src = media.storage_url;
+      }
+
+      card.querySelectorAll('[data-engajamento]').forEach((button) => {
+        button.dataset.mediaId = media.id;
       });
+
+      status.textContent = 'Publicado e registrado no Neon.';
+      status.classList.remove('is-uploading');
+      status.classList.add('is-success');
+      URL.revokeObjectURL(mediaUrl);
+
+      if (idLocal) {
+        await marcarStatusLocal(idLocal, 'ready');
+      }
+    } catch (error) {
+      console.error('Falha ao enviar mídia:', error);
+      status.textContent = `Falha no envio: ${error.message || 'tente novamente.'}`;
+      status.classList.remove('is-uploading');
+      status.classList.add('is-error');
+
+      if (idLocal) {
+        await marcarStatusLocal(idLocal, 'failed');
+      }
+    }
+
+    atualizarEmptyState(feedContainer, emptyState);
   }
 
-  function createPostCard(file, src) {
+  async function marcarStatusLocal(idLocal, status) {
+    if (!window.REDE_SOCIOLOCAL_MEDIA_DB || typeof window.REDE_SOCIOLOCAL_MEDIA_DB.atualizar !== 'function') {
+      return;
+    }
+
+    try {
+      await window.REDE_SOCIOLOCAL_MEDIA_DB.atualizar(idLocal, { status });
+    } catch (error) {
+      console.warn('Não foi possível atualizar o status local da mídia:', error);
+    }
+  }
+
+  // ============================================================
+  // Estrutura de card compartilhada (feed do servidor e uploads novos)
+  // ============================================================
+
+  function montarEstruturaCard({ titulo, isVideo, src, mediaId }) {
     const card = document.createElement('article');
     card.className = 'post-card';
 
-    const isVideo = file.type.startsWith('video/');
-    const mediaId = `local-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-
     const header = document.createElement('div');
     header.className = 'post-header';
-    header.textContent = file.name;
+    header.textContent = titulo;
 
     const mediaElement = document.createElement(isVideo ? 'video' : 'img');
     mediaElement.className = 'post-media';
@@ -116,7 +227,7 @@
       mediaElement.playsInline = true;
       mediaElement.preload = 'metadata';
     } else {
-      mediaElement.alt = file.name;
+      mediaElement.alt = titulo;
       mediaElement.loading = 'lazy';
     }
 
@@ -151,9 +262,16 @@
     return card;
   }
 
+  function atualizarEmptyState(feedContainer, emptyState) {
+    if (!emptyState) return;
+    const temCards = feedContainer.querySelector('.post-card') !== null;
+    emptyState.hidden = temCards;
+  }
+
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', iniciarAplicacao, { once: true });
   } else {
     iniciarAplicacao();
   }
 })();
+
