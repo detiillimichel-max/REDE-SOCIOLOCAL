@@ -17,7 +17,10 @@ export default async function handler(request, response) {
     });
   }
 
-  const token = process.env.REDE_SOCIOLOCAL_PUBLIC_READ_WRITE_TOKEN;
+  const token =
+    process.env.REDE_SOCIOLOCAL_PUBLIC_READ_WRITE_TOKEN ||
+    process.env.REDE_SOCIOLOCAL_READ_WRITE_TOKEN ||
+    process.env.BLOB_READ_WRITE_TOKEN;
 
   if (!token) {
     console.error('Token do Blob público não encontrado.');
