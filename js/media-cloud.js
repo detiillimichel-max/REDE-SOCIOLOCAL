@@ -89,7 +89,7 @@
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        media_type: isVideo ? 'video' : 'image',
+        media_type: isVideo ? 'mux_video' : 'image',
         title: file.name,
         description: null,
         category: isVideo ? 'video' : 'foto',
