@@ -124,14 +124,14 @@
 
     const db = await abrirBanco();
     const registro = {
-      id: idExterno || crypto.randomUUID(),
       file,
       name: file.name || dados.name || 'midia',
       type: file.type || dados.type || 'application/octet-stream',
       size: file.size,
       createdAt: Date.now(),
-      status: 'pending',
-      ...dados
+      ...dados,
+      id: idExterno || crypto.randomUUID(),
+      status: 'pending'
     };
 
     try {
