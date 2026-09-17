@@ -63,7 +63,7 @@
 
           try {
             const response = await fetch(
-              `/api/mux-upload-status?upload_id=${encodeURIComponent(uploadId)}`,
+              `/api/mux?upload_id=${encodeURIComponent(uploadId)}`,
               { method: 'GET', headers: { Accept: 'application/json' } }
             );
 
@@ -113,7 +113,7 @@
       atualizarStatus('Preparando envio para o Mux…');
 
       try {
-        const createResponse = await fetch('/api/mux-create-upload', {
+        const createResponse = await fetch('/api/mux', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
           body: JSON.stringify({
