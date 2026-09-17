@@ -318,7 +318,7 @@ SET
 CREATE OR REPLACE FUNCTION update_media_like_count()
 RETURNS TRIGGER
 LANGUAGE plpgsql
-AS $
+AS $func$
 BEGIN
     IF TG_OP = 'INSERT' THEN
         IF NEW.interaction_type = 'like' THEN
@@ -340,7 +340,7 @@ BEGIN
 
     RETURN NULL;
 END;
-$;
+$func$;
 
 DROP TRIGGER IF EXISTS trg_media_interactions_like_count ON media_interactions;
 CREATE TRIGGER trg_media_interactions_like_count
@@ -351,7 +351,7 @@ CREATE TRIGGER trg_media_interactions_like_count
 CREATE OR REPLACE FUNCTION update_media_comment_count()
 RETURNS TRIGGER
 LANGUAGE plpgsql
-AS $
+AS $func$
 BEGIN
     IF TG_OP = 'INSERT' THEN
         UPDATE media
@@ -369,7 +369,7 @@ BEGIN
 
     RETURN NULL;
 END;
-$;
+$func$;
 
 DROP TRIGGER IF EXISTS trg_media_comments_count ON media_comments;
 CREATE TRIGGER trg_media_comments_count
