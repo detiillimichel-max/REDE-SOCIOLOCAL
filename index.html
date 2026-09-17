@@ -6,8 +6,8 @@
   <meta name="theme-color" content="#000000">
   <meta name="description" content="Visualizador social de fotos e vídeos">
   <title>Meu Feed Social</title>
-  <link rel="stylesheet" href="css/styles.css?v=cloud1">
-  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="css/styles.css?v=mux2">
+  <link rel="stylesheet" href="manifest.json">
 </head>
 <body>
   <header class="app-header">
@@ -25,6 +25,9 @@
       <button type="button" id="camera-video-button" class="btn-select media-button btn-secondary" aria-label="Gravar vídeo">
         <i data-lucide="video"></i><span>Vídeo</span>
       </button>
+      <button type="button" id="mux-publish-button" class="btn-select media-button btn-mux" aria-label="Abrir publicação com Mux" aria-expanded="false">
+        <i data-lucide="clapperboard"></i><span>Mux</span>
+      </button>
 
       <input type="file" id="gallery-photo-input" accept="image/*" multiple hidden>
       <input type="file" id="gallery-video-input" accept="video/*" multiple hidden>
@@ -41,9 +44,56 @@
     </div>
   </main>
 
+  <section id="mux-publish-modal" class="mux-modal" hidden aria-labelledby="mux-modal-title" role="dialog" aria-modal="true">
+    <div class="mux-panel">
+      <div class="mux-panel-header">
+        <div>
+          <span class="mux-kicker">Novo fluxo de publicação</span>
+          <h2 id="mux-modal-title">🎬 Publicar com Mux</h2>
+        </div>
+        <button type="button" id="mux-modal-close" class="mux-close" aria-label="Fechar publicação Mux">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+
+      <div class="mux-steps" aria-label="Etapas da publicação">
+        <div class="mux-step is-active"><strong>1</strong><span>Preparar</span></div>
+        <div class="mux-step"><strong>2</strong><span>Enviar</span></div>
+        <div class="mux-step"><strong>3</strong><span>Neon</span></div>
+        <div class="mux-step"><strong>4</strong><span>Publicar</span></div>
+      </div>
+
+      <div class="mux-stage">
+        <span class="mux-stage-label">Etapa 1</span>
+        <h3>Preparar vídeo</h3>
+        <p>Escolha um vídeo para iniciar o novo fluxo. Nesta primeira etapa, nenhum envio é feito.</p>
+
+        <label for="mux-video-input" class="mux-file-button">
+          <i data-lucide="upload"></i>
+          <span>Escolher vídeo</span>
+        </label>
+        <input type="file" id="mux-video-input" accept="video/*" hidden>
+
+        <div id="mux-selected-file" class="mux-selected-file" hidden>
+          <i data-lucide="file-video"></i>
+          <div>
+            <strong id="mux-file-name">Nenhum arquivo</strong>
+            <small id="mux-file-details"></small>
+          </div>
+        </div>
+
+        <div class="mux-notice">
+          <i data-lucide="info"></i>
+          <span>As etapas de envio para o Mux, registro no Neon e publicação no feed serão ativadas nas próximas fases.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="js/media-cloud.js?v=mux1"></script>
   <script src="js/app.js?v=mux1"></script>
+  <script src="js/mux-publisher.js?v=mux1"></script>
   <script src="js/engajamento.js?v=cloud1"></script>
 </body>
 </html>
