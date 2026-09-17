@@ -46,12 +46,32 @@
     function atualizarProgresso(percentual) {
       const valor = Math.max(0, Math.min(100, Math.round(percentual)));
       const progress = obterProgressoElemento();
-      if (!progress) return;
+      const label = document.getElementById('mux-upload-progress-label');
 
-      if ('value' in progress) progress.value = valor;
-      progress.textContent = `${valor}%`;
-      progress.setAttribute('aria-valuenow', String(valor));
+      if (progress) {
+        progress.value = valor;
+        progress.setAttribute('aria-valuenow', String(valor));
+      }
+      if (label) label.textContent = `${valor}%`;
     }
+
+    function selecionarVideo(file, origem = 'Mux') {
+      if (!file || !file.type.startsWith('video/')) return;
+
+      selectedVideo = file;
+      const sizeMb = (file.size / (1024 * 1024)).toFixed(2);
+      fileName.textContent = file.name;
+      fileDetails.textContent = `${file.type || 'Vídeo'} · ${sizeMb} MB · ${origem}`;
+      selectedFile.hidden = false;
+      atualizarProgresso(0);
+      atualizarStatus('Vídeo preparado. Pronto para enviar ao Mux.');
+
+      const uploadButton = obterBotaoEnvio();
+      if (uploadButton) uploadButton.disabled = false;
+      abrirModal();
+    }
+
+    window.REDEMuxSelectVideo = selecionarVideo;
 
     function aguardarAsset(uploadId) {
       return new Promise((resolve, reject) => {
@@ -66,7 +86,6 @@
               `/api/mux-upload-status?upload_id=${encodeURIComponent(uploadId)}`,
               { method: 'GET', headers: { Accept: 'application/json' } }
             );
-
             const data = await response.json().catch(() => ({}));
 
             if (!response.ok) {
@@ -159,7 +178,6 @@
         await aguardarAsset(createData.uploadId);
 
         atualizarStatus('Vídeo recebido e registrado no Mux. Etapa 2 concluída.');
-        if (uploadButton) uploadButton.disabled = true;
       } catch (error) {
         console.error('Erro no envio Mux:', error);
         atualizarStatus(error?.message || 'Não foi possível concluir o envio para o Mux.');
@@ -181,27 +199,54 @@
 
     fileInput.addEventListener('change', () => {
       const file = fileInput.files?.[0];
-      if (!file) return;
-
-      selectedVideo = file;
-      const sizeMb = (file.size / (1024 * 1024)).toFixed(2);
-      fileName.textContent = file.name;
-      fileDetails.textContent = `${file.type || 'Vídeo'} · ${sizeMb} MB`;
-      selectedFile.hidden = false;
-      atualizarProgresso(0);
-      atualizarStatus('Vídeo preparado. Pronto para enviar ao Mux.');
-
-      const uploadButton = obterBotaoEnvio();
-      if (uploadButton) uploadButton.disabled = false;
+      if (file) selecionarVideo(file, 'Mux');
     });
 
     const uploadButton = obterBotaoEnvio();
     if (uploadButton) uploadButton.addEventListener('click', enviarParaMux);
   }
 
+  function iniciarRoteamentoDeVideos() {
+    const videoButtons = ['gallery-video-button', 'camera-video-button'];
+
+    document.addEventListener('click', (event) => {
+      const button = event.target.closest?.('#gallery-video-button, #camera-video-button');
+      if (!button) return;
+
+      const inputId = button.id === 'camera-video-button'
+        ? 'camera-video-input'
+        : 'gallery-video-input';
+      const input = document.getElementById(inputId);
+      if (!input) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      input.click();
+    }, true);
+
+    document.addEventListener('change', (event) => {
+      const input = event.target;
+      if (!input || !videoButtons.some((id) => input.id === id.replace('-button', '-input'))) return;
+
+      const file = input.files?.[0];
+      if (!file) return;
+
+      event.stopPropagation();
+      if (typeof window.REDEMuxSelectVideo === 'function') {
+        const origem = input.id === 'camera-video-input' ? 'Câmera' : 'Galeria';
+        window.REDEMuxSelectVideo(file, origem);
+      }
+      input.value = '';
+    }, true);
+  }
+
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', iniciarMuxPublisher, { once: true });
+    document.addEventListener('DOMContentLoaded', () => {
+      iniciarMuxPublisher();
+      iniciarRoteamentoDeVideos();
+    }, { once: true });
   } else {
     iniciarMuxPublisher();
+    iniciarRoteamentoDeVideos();
   }
 })();
