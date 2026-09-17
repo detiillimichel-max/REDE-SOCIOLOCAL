@@ -5,7 +5,6 @@
 
   async function obterClienteBlob() {
     if (!blobClientPromise) {
-      // Mantém a versão do cliente alinhada com a versão usada no backend.
       blobClientPromise = import('https://esm.sh/@vercel/blob@2.6.1/client');
     }
     return blobClientPromise;
@@ -20,7 +19,7 @@
       .replace(/^-|-$/g, '') || 'media';
   }
 
-  async function enviarParaBlob(file) {
+  async function enviarFotoParaBlob(file) {
     const { upload } = await obterClienteBlob();
     const caminho = `rede-sociolocal/${Date.now()}-${nomeSeguro(file.name)}`;
 
@@ -30,27 +29,82 @@
     });
   }
 
-  async function registrarMetadados(file, blob) {
-    const duration = await obterDuracao(file, false);
+  async function criarUploadMux() {
+    const response = await fetch('/api/mux-upload', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({})
+    });
+
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok || !data.ok || !data.upload_url || !data.upload_id) {
+      throw new Error(data.error || 'Não foi possível criar o upload no Mux.');
+    }
+
+    return data;
+  }
+
+  async function enviarVideoParaMux(file) {
+    const upload = await criarUploadMux();
+
+    const uploadResponse = await fetch(upload.upload_url, {
+      method: 'PUT',
+      body: file
+    });
+
+    if (!uploadResponse.ok) {
+      throw new Error(`O Mux recusou o vídeo (HTTP ${uploadResponse.status}).`);
+    }
+
+    for (let tentativa = 0; tentativa < 30; tentativa += 1) {
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
+      const statusResponse = await fetch(
+        `/api/mux-upload?upload_id=${encodeURIComponent(upload.upload_id)}`
+      );
+      const statusData = await statusResponse.json().catch(() => ({}));
+
+      if (!statusResponse.ok || !statusData.ok) {
+        throw new Error(statusData.error || 'Não foi possível consultar o processamento no Mux.');
+      }
+
+      if (statusData.ready && statusData.playback_id) {
+        return statusData;
+      }
+
+      if (statusData.status === 'errored' || statusData.status === 'cancelled') {
+        throw new Error(`O Mux não conseguiu processar o vídeo: ${statusData.status}.`);
+      }
+    }
+
+    throw new Error('O Mux ainda está processando o vídeo. Tente novamente em alguns instantes.');
+  }
+
+  async function registrarMetadados(file, dados) {
+    const isVideo = file.type.startsWith('video/');
+    const duration = await obterDuracao(file, isVideo);
 
     const response = await fetch('/api/media-create', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        media_type: 'image',
+        media_type: isVideo ? 'video' : 'image',
         title: file.name,
         description: null,
-        category: 'foto',
+        category: isVideo ? 'video' : 'foto',
         duration_seconds: duration,
-        source: 'blob',
-        source_url: blob.url,
-        storage_url: blob.url,
-        thumbnail_url: null,
+        source: isVideo ? 'mux' : 'blob',
+        source_url: dados.source_url || dados.storage_url || dados.url,
+        storage_url: dados.storage_url || dados.url,
+        thumbnail_url: dados.thumbnail_url || null,
+        mux_asset_id: dados.asset_id || null,
+        mux_playback_id: dados.playback_id || null,
         status: 'ready'
       })
     });
 
-    const data = await response.json();
+    const data = await response.json().catch(() => ({}));
     if (!response.ok || !data.ok) {
       throw new Error(data.error || 'Falha ao registrar os metadados no Neon.');
     }
@@ -79,12 +133,21 @@
   }
 
   async function uploadAndRegister(file) {
-    if (!file || !file.type.startsWith('image/')) {
-      throw new Error('Vídeos aguardam a integração com o Mux. O Blob está reservado para fotos.');
+    if (!file) {
+      throw new Error('Nenhum arquivo foi selecionado.');
     }
 
-    const blob = await enviarParaBlob(file);
-    return registrarMetadados(file, blob);
+    if (file.type.startsWith('image/')) {
+      const blob = await enviarFotoParaBlob(file);
+      return registrarMetadados(file, blob);
+    }
+
+    if (file.type.startsWith('video/')) {
+      const mux = await enviarVideoParaMux(file);
+      return registrarMetadados(file, mux);
+    }
+
+    throw new Error('Formato de arquivo não suportado.');
   }
 
   window.REDEMediaCloud = {
