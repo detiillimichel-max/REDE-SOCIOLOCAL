@@ -273,59 +273,6 @@ body.mux-modal-open { overflow: hidden; }
 .mux-selected-file strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .mux-selected-file small { display: block; margin-top: 4px; color: #93a5b1; }
 
-.mux-upload-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 9px;
-  width: 100%;
-  margin-top: 14px;
-  padding: 15px 18px;
-  border: 1px solid #55bdf5;
-  border-radius: 14px;
-  background: #55bdf5;
-  color: #07131a;
-  font-weight: 800;
-  cursor: pointer;
-}
-
-.mux-upload-button:hover:not(:disabled) { filter: brightness(1.08); }
-.mux-upload-button:disabled { opacity: .45; cursor: not-allowed; }
-.mux-upload-button svg { width: 20px; height: 20px; }
-
-.mux-progress-wrap {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: center;
-  gap: 10px;
-  margin-top: 16px;
-}
-
-.mux-upload-progress {
-  width: 100%;
-  height: 10px;
-  border: 0;
-  border-radius: 999px;
-  overflow: hidden;
-  background: #26333e;
-}
-
-.mux-upload-progress::-webkit-progress-bar { background: #26333e; border-radius: 999px; }
-.mux-upload-progress::-webkit-progress-value { background: #55bdf5; border-radius: 999px; }
-.mux-upload-progress::-moz-progress-bar { background: #55bdf5; border-radius: 999px; }
-
-#mux-upload-progress-label { min-width: 42px; text-align: right; font-size: .85rem; color: #dff4ff; }
-
-.mux-upload-status {
-  margin-top: 12px;
-  padding: 12px 14px;
-  border-radius: 12px;
-  background: #17232c;
-  color: #b9c8d2;
-  font-size: .84rem;
-  line-height: 1.45;
-}
-
 .mux-notice { display: flex; gap: 10px; margin-top: 18px; padding: 13px; border-radius: 12px; background: #19232b; color: #9fb1bd; font-size: .82rem; line-height: 1.45; }
 .mux-notice svg { width: 18px; height: 18px; color: #55bdf5; flex: 0 0 auto; }
 
