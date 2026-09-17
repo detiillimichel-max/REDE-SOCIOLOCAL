@@ -36,6 +36,14 @@ CREATE INDEX IF NOT EXISTS idx_profiles_display_name
 CREATE INDEX IF NOT EXISTS idx_profiles_location
     ON profiles (state, city);
 
+-- Vínculo simples com o provedor de autenticação do aplicativo.
+ALTER TABLE profiles
+    ADD COLUMN IF NOT EXISTS email VARCHAR(320);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_profiles_email
+    ON profiles (email)
+    WHERE email IS NOT NULL;
+
 -- ============================================================
 -- 2. PUBLICAÇÕES E METADADOS DE MÍDIA
 -- ============================================================
@@ -54,6 +62,8 @@ CREATE TABLE IF NOT EXISTS media (
     storage_url TEXT,
     mux_asset_id VARCHAR(180),
     mux_playback_id VARCHAR(180),
+    likes_count INTEGER NOT NULL DEFAULT 0,
+    comments_count INTEGER NOT NULL DEFAULT 0,
     status VARCHAR(30) NOT NULL DEFAULT 'pending',
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -127,6 +137,34 @@ CREATE INDEX IF NOT EXISTS idx_media_interactions_user_id
 
 CREATE INDEX IF NOT EXISTS idx_media_interactions_type_created
     ON media_interactions (interaction_type, created_at DESC);
+
+-- Uma curtida por usuário para cada mídia.
+CREATE UNIQUE INDEX IF NOT EXISTS uq_media_interactions_like
+    ON media_interactions (media_id, user_id, interaction_type)
+    WHERE interaction_type = 'like';
+
+-- ============================================================
+-- 3A. VISUALIZAÇÕES
+-- ============================================================
+-- Visualizações ficam separadas das interações sociais para não
+-- inflar a tabela usada por curtidas, compartilhamentos e salvamentos.
+
+CREATE TABLE IF NOT EXISTS media_views (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    media_id UUID NOT NULL REFERENCES media(id) ON DELETE CASCADE,
+    user_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
+    session_id VARCHAR(180),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_media_views_media_id
+    ON media_views (media_id);
+
+CREATE INDEX IF NOT EXISTS idx_media_views_user_id
+    ON media_views (user_id);
+
+CREATE INDEX IF NOT EXISTS idx_media_views_created_at
+    ON media_views (created_at DESC);
 
 -- ============================================================
 -- 4. COMENTÁRIOS
@@ -251,7 +289,96 @@ VALUES
 ON CONFLICT (key) DO NOTHING;
 
 -- ============================================================
--- 8. ATUALIZAÇÃO AUTOMÁTICA DE updated_at
+-- 8. CONTADORES DE CURTIDAS E COMENTÁRIOS
+-- ============================================================
+
+-- Garante que schemas executados sobre uma versão já existente também
+-- recebam os novos contadores sem recriar a tabela.
+ALTER TABLE media
+    ADD COLUMN IF NOT EXISTS likes_count INTEGER NOT NULL DEFAULT 0;
+
+ALTER TABLE media
+    ADD COLUMN IF NOT EXISTS comments_count INTEGER NOT NULL DEFAULT 0;
+
+-- Reconcilia os contadores existentes antes de instalar os triggers.
+UPDATE media m
+SET
+    likes_count = (
+        SELECT COUNT(*)::INTEGER
+        FROM media_interactions mi
+        WHERE mi.media_id = m.id
+          AND mi.interaction_type = 'like'
+    ),
+    comments_count = (
+        SELECT COUNT(*)::INTEGER
+        FROM media_comments mc
+        WHERE mc.media_id = m.id
+    );
+
+CREATE OR REPLACE FUNCTION update_media_like_count()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $
+BEGIN
+    IF TG_OP = 'INSERT' THEN
+        IF NEW.interaction_type = 'like' THEN
+            UPDATE media
+            SET likes_count = likes_count + 1
+            WHERE id = NEW.media_id;
+        END IF;
+        RETURN NEW;
+    END IF;
+
+    IF TG_OP = 'DELETE' THEN
+        IF OLD.interaction_type = 'like' THEN
+            UPDATE media
+            SET likes_count = GREATEST(likes_count - 1, 0)
+            WHERE id = OLD.media_id;
+        END IF;
+        RETURN OLD;
+    END IF;
+
+    RETURN NULL;
+END;
+$;
+
+DROP TRIGGER IF EXISTS trg_media_interactions_like_count ON media_interactions;
+CREATE TRIGGER trg_media_interactions_like_count
+    AFTER INSERT OR DELETE ON media_interactions
+    FOR EACH ROW
+    EXECUTE FUNCTION update_media_like_count();
+
+CREATE OR REPLACE FUNCTION update_media_comment_count()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $
+BEGIN
+    IF TG_OP = 'INSERT' THEN
+        UPDATE media
+        SET comments_count = comments_count + 1
+        WHERE id = NEW.media_id;
+        RETURN NEW;
+    END IF;
+
+    IF TG_OP = 'DELETE' THEN
+        UPDATE media
+        SET comments_count = GREATEST(comments_count - 1, 0)
+        WHERE id = OLD.media_id;
+        RETURN OLD;
+    END IF;
+
+    RETURN NULL;
+END;
+$;
+
+DROP TRIGGER IF EXISTS trg_media_comments_count ON media_comments;
+CREATE TRIGGER trg_media_comments_count
+    AFTER INSERT OR DELETE ON media_comments
+    FOR EACH ROW
+    EXECUTE FUNCTION update_media_comment_count();
+
+-- ============================================================
+-- 9. ATUALIZAÇÃO AUTOMÁTICA DE updated_at
 -- ============================================================
 
 CREATE OR REPLACE FUNCTION set_updated_at()
