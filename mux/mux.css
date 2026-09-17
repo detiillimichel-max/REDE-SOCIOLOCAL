@@ -1,0 +1,119 @@
+* { box-sizing: border-box; }
+
+:root {
+  color-scheme: dark;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #08090d;
+  color: #f5f7fb;
+}
+
+.mux-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.mux-card {
+  width: min(100%, 520px);
+  padding: 28px;
+  border: 1px solid #262a35;
+  border-radius: 24px;
+  background: #11131a;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, .35);
+}
+
+.mux-badge {
+  display: inline-flex;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #1d2230;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .12em;
+}
+
+h1 {
+  margin: 14px 0 8px;
+  font-size: clamp(26px, 7vw, 38px);
+}
+
+.mux-subtitle {
+  margin: 0 0 24px;
+  color: #aeb5c3;
+  line-height: 1.5;
+}
+
+.mux-picker {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px;
+  border: 1px dashed #414756;
+  border-radius: 18px;
+  cursor: pointer;
+  background: #0c0e13;
+}
+
+.mux-picker-icon { font-size: 28px; }
+.mux-picker strong,
+.mux-picker small { display: block; }
+.mux-picker small { margin-top: 4px; color: #8f97a8; }
+
+.mux-file {
+  display: grid;
+  gap: 5px;
+  margin-top: 14px;
+  padding: 14px;
+  border-radius: 14px;
+  background: #191c25;
+  overflow-wrap: anywhere;
+}
+
+.mux-file span { color: #9da5b5; font-size: 13px; }
+
+.mux-upload-button {
+  width: 100%;
+  margin-top: 16px;
+  padding: 15px 18px;
+  border: 0;
+  border-radius: 15px;
+  background: #f5f7fb;
+  color: #101218;
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.mux-upload-button:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}
+
+.mux-progress-wrap {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: center;
+  margin-top: 22px;
+}
+
+progress { width: 100%; height: 12px; }
+
+#mux-progress-label {
+  min-width: 42px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.mux-status {
+  min-height: 24px;
+  margin: 14px 0 0;
+  color: #aeb5c3;
+  line-height: 1.45;
+}
