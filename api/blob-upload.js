@@ -22,10 +22,7 @@ export default async function handler(request, response) {
   }
 
   try {
-    // O SDK oficial espera o corpo JSON original da solicitação.
-    // Em Pages/Vercel Functions, request.json() evita problemas
-    // com o tratamento manual de req.body e bodyParser.
-    const body = await request.json();
+    const body = request.body;
 
     const jsonResponse = await handleUpload({
       body,
@@ -51,8 +48,6 @@ export default async function handler(request, response) {
       }),
 
       onUploadCompleted: async ({ blob, tokenPayload }) => {
-        // O frontend registra os metadados em /api/media-create
-        // depois que o upload retorna blob.url.
         console.log('Upload de foto concluído no Blob:', {
           url: blob?.url,
           tokenPayload
