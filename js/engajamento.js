@@ -62,6 +62,7 @@
 
     drawer.dataset.mediaId = button.dataset.mediaId || '';
     drawer.classList.add('is-open');
+    carregarComentarios(drawer.dataset.mediaId, drawer, card);
 
     if (window.lucide && typeof window.lucide.createIcons === 'function') {
       window.lucide.createIcons({ root: drawer });
@@ -100,9 +101,157 @@
     }
   }
 
+
+  const USER_ID_TEMPORARIO = '00000000-0000-4000-8000-000000000001';
+
+  function exibirErroNoCard(element, mensagem) {
+    const card = element instanceof Element ? element.closest('.post-card') || element : null;
+    if (!card) return;
+
+    let erro = card.querySelector('.engajamento-api-error');
+    if (!erro) {
+      erro = document.createElement('div');
+      erro.className = 'engajamento-api-error';
+      erro.setAttribute('role', 'alert');
+      card.appendChild(erro);
+    }
+    erro.textContent = mensagem;
+  }
+
+  async function enviarCurtida(event) {
+    const mediaId = event.detail?.id || event.detail?.media_id || '';
+    const element = event.detail?.element;
+
+    if (!mediaId) {
+      exibirErroNoCard(element, 'Não foi possível identificar esta publicação.');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/media-interactions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({
+          media_id: mediaId,
+          user_id: USER_ID_TEMPORARIO,
+          interaction_type: 'like'
+        })
+      });
+
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || !data.ok) {
+        throw new Error(data.error || 'Não foi possível atualizar a curtida.');
+      }
+
+      const card = element instanceof Element ? element.closest('.post-card') || element : null;
+      if (card) {
+        const button = card.querySelector('button[data-engajamento="curtir"]');
+        if (button) button.classList.toggle('is-active', data.liked === true);
+      }
+    } catch (error) {
+      console.error('Erro ao persistir curtida:', error);
+      exibirErroNoCard(element, error?.message || 'Erro de rede ao salvar a curtida.');
+    }
+  }
+
+  function renderizarComentarios(drawer, comentarios) {
+    const body = drawer?.querySelector('.comments-drawer-body');
+    if (!body) return;
+
+    const input = body.querySelector('.comments-input');
+    const sendButton = body.querySelector('.comments-send');
+    const listaAnterior = body.querySelector('.comments-list');
+    if (listaAnterior) listaAnterior.remove();
+
+    const lista = document.createElement('div');
+    lista.className = 'comments-list';
+
+    if (!comentarios.length) {
+      const vazio = document.createElement('p');
+      vazio.textContent = 'Nenhum comentário ainda.';
+      lista.appendChild(vazio);
+    } else {
+      comentarios.forEach((comentario) => {
+        const item = document.createElement('article');
+        item.className = 'comment-item';
+
+        const texto = document.createElement('p');
+        texto.textContent = comentario.content || '';
+
+        const data = document.createElement('small');
+        if (comentario.created_at) {
+          data.textContent = new Date(comentario.created_at).toLocaleString('pt-BR');
+        }
+
+        item.append(texto, data);
+        lista.appendChild(item);
+      });
+    }
+
+    body.insertBefore(lista, input || sendButton || null);
+  }
+
+  async function carregarComentarios(mediaId, drawer, element) {
+    if (!mediaId || !drawer) return;
+
+    try {
+      const response = await fetch(
+        `/api/media-comments?media_id=${encodeURIComponent(mediaId)}`,
+        { method: 'GET', headers: { Accept: 'application/json' } }
+      );
+
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || !data.ok) {
+        throw new Error(data.error || 'Não foi possível carregar os comentários.');
+      }
+
+      renderizarComentarios(drawer, Array.isArray(data.comments) ? data.comments : []);
+    } catch (error) {
+      console.error('Erro ao carregar comentários:', error);
+      exibirErroNoCard(element, error?.message || 'Erro de rede ao carregar comentários.');
+    }
+  }
+
+  async function enviarComentario(event) {
+    const texto = event.detail?.texto?.trim() || '';
+    const element = event.detail?.element;
+    const drawer = document.getElementById('comments-drawer');
+    const mediaId = drawer?.dataset.mediaId || event.detail?.media_id || '';
+
+    if (!mediaId || !texto) {
+      exibirErroNoCard(element, 'Não foi possível enviar este comentário.');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/media-comments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({
+          media_id: mediaId,
+          author_id: USER_ID_TEMPORARIO,
+          content: texto
+        })
+      });
+
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || !data.ok) {
+        throw new Error(data.error || 'Não foi possível enviar o comentário.');
+      }
+
+      await carregarComentarios(mediaId, drawer, element);
+    } catch (error) {
+      console.error('Erro ao enviar comentário:', error);
+      exibirErroNoCard(element, error?.message || 'Erro de rede ao enviar comentário.');
+    }
+  }
+
   function inicializar() {
     if (inicializado) return;
     inicializado = true;
+
+    document.addEventListener('engajamento:curtir', enviarCurtida);
+    document.addEventListener('comentarios:enviar', enviarComentario);
 
     document.addEventListener('click', (event) => {
       const target = event.target;
