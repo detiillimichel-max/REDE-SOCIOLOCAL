@@ -30,7 +30,7 @@
   }
 
   async function criarUploadMux() {
-    const response = await fetch('/api/mux-upload', {
+    const response = await fetch('/api/mux', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({})
@@ -61,7 +61,7 @@
       await new Promise((resolve) => setTimeout(resolve, 2000));
 
       const statusResponse = await fetch(
-        `/api/mux-upload?upload_id=${encodeURIComponent(upload.upload_id)}`
+        `/api/mux?upload_id=${encodeURIComponent(upload.upload_id)}`
       );
       const statusData = await statusResponse.json().catch(() => ({}));
 
