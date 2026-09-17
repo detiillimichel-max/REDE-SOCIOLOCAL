@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b0b0f">
+  <title>REDE-SOCIOLOCAL • Mux</title>
+  <link rel="stylesheet" href="./mux.css">
+</head>
+<body>
+  <main class="mux-page">
+    <section class="mux-card" aria-labelledby="titulo">
+      <div class="mux-badge">MUX</div>
+      <h1 id="titulo">Publicação de vídeo</h1>
+      <p class="mux-subtitle">Área dedicada exclusivamente ao envio de vídeos para o Mux.</p>
+
+      <label class="mux-picker" for="mux-video-input">
+        <span class="mux-picker-icon">🎬</span>
+        <span>
+          <strong>Escolher vídeo</strong>
+          <small>Galeria do celular</small>
+        </span>
+      </label>
+      <input id="mux-video-input" type="file" accept="video/*" hidden>
+
+      <div id="mux-selected-file" class="mux-file" hidden>
+        <strong id="mux-file-name">—</strong>
+        <span id="mux-file-details">—</span>
+      </div>
+
+      <button id="mux-upload-button" class="mux-upload-button" type="button" disabled>
+        Enviar para o Mux
+      </button>
+
+      <div class="mux-progress-wrap" aria-live="polite">
+        <progress id="mux-upload-progress" value="0" max="100">0%</progress>
+        <span id="mux-progress-label">0%</span>
+      </div>
+
+      <p id="mux-upload-status" class="mux-status">Escolha um vídeo para começar.</p>
+    </section>
+  </main>
+
+  <script src="./mux.js" defer></script>
+</body>
+</html>
