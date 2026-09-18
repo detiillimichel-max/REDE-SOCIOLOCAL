@@ -248,12 +248,95 @@
     return antigas.length;
   }
 
+
+  async function restaurarPendentes() {
+    const feed = document.getElementById('feed-container');
+    if (!feed) return;
+
+    const registros = (await listar())
+      .filter((registro) =>
+        registro &&
+        registro.file instanceof Blob &&
+        registro.status !== 'ready'
+      )
+      .sort((a, b) => Number(a.createdAt || 0) - Number(b.createdAt || 0));
+
+    for (const registro of registros) {
+      restaurarRegistroNoFeed(feed, registro);
+    }
+
+    const emptyState = document.getElementById('empty-state');
+    if (emptyState) {
+      emptyState.hidden = feed.querySelector('.post-card') !== null;
+    }
+  }
+
+  function restaurarRegistroNoFeed(feed, registro) {
+    if (feed.querySelector('[data-local-media-id="' + CSS.escape(registro.id) + '"]')) {
+      return;
+    }
+
+    const file = registro.file;
+    const url = URL.createObjectURL(file);
+    const isVideo = String(registro.type || file.type || '').startsWith('video/');
+
+    const card = document.createElement('article');
+    card.className = 'post-card';
+    card.dataset.localMediaId = registro.id;
+
+    const header = document.createElement('div');
+    header.className = 'post-header';
+    header.textContent = registro.name || file.name || 'Mídia local';
+
+    const media = document.createElement(isVideo ? 'video' : 'img');
+    media.className = 'post-media';
+    media.src = url;
+
+    if (isVideo) {
+      media.controls = true;
+      media.loop = true;
+      media.playsInline = true;
+      media.preload = 'metadata';
+    } else {
+      media.alt = registro.name || file.name || 'Imagem';
+      media.loading = 'lazy';
+    }
+
+    const status = document.createElement('small');
+    status.className = 'post-upload-status';
+
+    if (registro.status === 'failed') {
+      status.textContent = 'Mídia salva neste dispositivo. O último envio falhou.';
+      status.classList.add('is-error');
+    } else if (registro.status === 'processing') {
+      status.textContent = 'Mídia salva neste dispositivo. Envio não concluído.';
+      status.classList.add('is-error');
+    } else {
+      status.textContent = 'Mídia salva neste dispositivo. Aguardando envio.';
+      status.classList.add('is-uploading');
+    }
+
+    card.append(header, media, status);
+    feed.appendChild(card);
+
+    if (window.lucide && typeof window.lucide.createIcons === 'function') {
+      window.lucide.createIcons({ root: card });
+    }
+  }
+
+  function iniciarRestauracao() {
+    restaurarPendentes().catch((error) => {
+      console.error('Não foi possível restaurar mídias do IndexedDB:', error);
+    });
+  }
+
   window.REDE_SOCIOLOCAL_MEDIA_DB = Object.freeze({
     salvar,
     obter,
     atualizar,
     remover,
     listar,
-    limparAntigas
+    limparAntigas,
+    restaurarPendentes
   });
 })();
