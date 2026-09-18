@@ -17,7 +17,7 @@ body.mux-modal-open { overflow: hidden; }
   position: sticky;
   top: 0;
   width: 100%;
-  max-width: 700px;
+  max-width: none;
   margin: 0 auto;
   background: rgba(5, 8, 12, .96);
   display: flex;
@@ -39,7 +39,7 @@ body.mux-modal-open { overflow: hidden; }
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  gap: 8px;
+  gap: 10px;
   flex: 1;
   min-width: 0;
   overflow-x: auto;
@@ -59,7 +59,7 @@ body.mux-modal-open { overflow: hidden; }
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 7px;
+  gap: 6px;
   min-height: 40px;
   padding: 8px 14px;
   border-radius: 999px;
@@ -128,7 +128,7 @@ body.mux-modal-open { overflow: hidden; }
 
 .feed-container {
   width: 100%;
-  max-width: 700px;
+  max-width: none;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -149,6 +149,7 @@ body.mux-modal-open { overflow: hidden; }
 
 .post-card {
   position: relative;
+  width: 100%;
   background: #000;
   border: 1px solid #1a1a1a;
   border-radius: 10px;
@@ -351,18 +352,18 @@ body.mux-modal-open { overflow: hidden; }
   .media-actions {
     width: auto;
     flex: 1;
-    gap: 7px;
+    gap: 10px;
   }
 
   .btn-select {
-    min-height: 38px;
+    min-height: 40px;
     padding: 7px 12px;
     font-size: .76rem;
   }
 
   .btn-select svg {
-    width: 18px;
-    height: 18px;
+    width: 19px;
+    height: 19px;
   }
   .feed-container { padding-bottom: 24px; }
   .post-actions { right: 7px; gap: 6px; padding: 5px; }
