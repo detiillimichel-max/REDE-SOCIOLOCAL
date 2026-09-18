@@ -316,11 +316,29 @@
       status.classList.add('is-uploading');
     }
 
-    card.append(header, media, status);
+    const actions = document.createElement('aside');
+    actions.className = 'post-actions';
+    actions.setAttribute('aria-label', 'Ações de engajamento');
+    actions.innerHTML = `
+      <button type="button" class="action-btn" data-engajamento="curtir" aria-label="Curtir">
+        <i data-lucide="thumbs-up"></i>
+      </button>
+      <button type="button" class="action-btn" data-engajamento="nao-curtir" aria-label="Não curtir">
+        <i data-lucide="thumbs-down"></i>
+      </button>
+      <button type="button" class="action-btn" data-engajamento="comentarios" aria-label="Comentários">
+        <i data-lucide="message-square"></i>
+      </button>
+      <button type="button" class="action-btn" data-engajamento="compartilhar" aria-label="Compartilhar">
+        <i data-lucide="share-2"></i>
+      </button>
+    `;
+
+    card.append(header, media, status, actions);
     feed.appendChild(card);
 
     if (window.lucide && typeof window.lucide.createIcons === 'function') {
-      window.lucide.createIcons({ root: card });
+      window.lucide.createIcons({ root: actions });
     }
   }
 

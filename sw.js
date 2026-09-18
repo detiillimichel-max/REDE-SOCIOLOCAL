@@ -1,9 +1,10 @@
-const CACHE_NAME = 'pwa-social-feed-v3';
+const CACHE_NAME = 'pwa-social-feed-v4';
 const ASSETS = [
   './',
   './index.html',
-  './css/styles.css',
-  './js/app.js',
+  './css/styles.css?v=responsive3',
+  './js/media-db.js?v=engagement1',
+  './js/app.js?v=mux3',
   './manifest.json'
 ];
 
