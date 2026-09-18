@@ -14,6 +14,15 @@
       window.lucide.createIcons();
     }
 
+    if (
+      window.REDE_SOCIOLOCAL_MEDIA_DB &&
+      typeof window.REDE_SOCIOLOCAL_MEDIA_DB.restaurarPendentes === 'function'
+    ) {
+      window.REDE_SOCIOLOCAL_MEDIA_DB.restaurarPendentes().catch((error) => {
+        console.error('Não foi possível restaurar mídias locais:', error);
+      });
+    }
+
     const buttonInputPairs = [
       ['gallery-photo-button', 'gallery-photo-input'],
       ['gallery-video-button', 'gallery-video-input'],
@@ -274,4 +283,3 @@
     iniciarAplicacao();
   }
 })();
-
