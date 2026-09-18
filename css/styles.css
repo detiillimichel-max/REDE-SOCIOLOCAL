@@ -19,17 +19,17 @@ body.mux-modal-open { overflow: hidden; }
   width: 100%;
   max-width: 700px;
   margin: 0 auto;
-  background: rgba(0, 0, 0, .96);
+  background: rgba(5, 8, 12, .96);
   display: flex;
-  justify-content: space-between;
   align-items: center;
   gap: 12px;
   padding: 12px 16px;
   z-index: 100;
-  border-bottom: 1px solid #222;
+  border-bottom: 1px solid rgba(255,255,255,.08);
 }
 
 .app-header h1 {
+  flex: 0 0 auto;
   font-size: 1.1rem;
   font-weight: 700;
   white-space: nowrap;
@@ -38,33 +38,93 @@ body.mux-modal-open { overflow: hidden; }
 .media-actions {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  gap: 6px;
-  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  flex-wrap: nowrap;
+  padding: 2px 1px 4px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.media-actions::-webkit-scrollbar {
+  display: none;
 }
 
 .btn-select {
+  flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  background: #0095f6;
-  color: #fff;
-  padding: 9px 12px;
-  border-radius: 8px;
-  border: 0;
-  font-size: .85rem;
+  gap: 7px;
+  min-height: 40px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(25,29,35,.88);
+  color: #e9edf2;
+  font-size: .82rem;
   font-weight: 600;
   cursor: pointer;
   user-select: none;
+  white-space: nowrap;
+  transition:
+    background .18s ease,
+    border-color .18s ease,
+    transform .18s ease;
 }
 
-.btn-select:hover { background: #087dcc; }
-.btn-secondary { background: #242424; border: 1px solid #3b3b3b; }
-.btn-secondary:hover { background: #333; }
-.btn-mux { background: #7c3aed; }
-.btn-mux:hover { background: #6d28d9; }
-.btn-select svg { width: 24px; height: 24px; stroke-width: 2.4; }
+.btn-select:hover {
+  background: rgba(45,51,59,.95);
+  border-color: rgba(255,255,255,.2);
+}
+
+.btn-select:active {
+  transform: scale(.96);
+}
+
+.btn-select:focus-visible {
+  outline: 2px solid rgba(255,255,255,.35);
+  outline-offset: 2px;
+}
+
+.btn-select svg {
+  width: 19px;
+  height: 19px;
+  stroke-width: 2.2;
+  flex: 0 0 auto;
+}
+
+/* Galeria */
+#gallery-photo-button,
+#gallery-video-button {
+  background: rgba(24,31,39,.95);
+}
+
+/* Câmera */
+.btn-secondary {
+  background: rgba(18,22,27,.95);
+  border-color: rgba(255,255,255,.13);
+}
+
+.btn-secondary:hover {
+  background: rgba(38,44,51,.95);
+}
+
+/* Mux */
+.btn-mux {
+  background: rgba(53,35,78,.92);
+  border-color: rgba(167,110,255,.28);
+  color: #eee5ff;
+}
+
+.btn-mux:hover {
+  background: rgba(72,45,105,.96);
+  border-color: rgba(185,135,255,.4);
+}
 
 .feed-container {
   width: 100%;
@@ -277,9 +337,33 @@ body.mux-modal-open { overflow: hidden; }
 .mux-notice svg { width: 18px; height: 18px; color: #55bdf5; flex: 0 0 auto; }
 
 @media (max-width: 560px) {
-  .app-header { align-items: flex-start; flex-direction: column; gap: 10px; }
-  .media-actions { width: 100%; justify-content: flex-start; }
-  .btn-select { flex: 1; min-width: 0; padding: 9px 8px; font-size: .78rem; }
+  .app-header {
+    align-items: center;
+    flex-direction: row;
+    gap: 10px;
+    padding: 10px 12px;
+  }
+
+  .app-header h1 {
+    font-size: 1rem;
+  }
+
+  .media-actions {
+    width: auto;
+    flex: 1;
+    gap: 7px;
+  }
+
+  .btn-select {
+    min-height: 38px;
+    padding: 7px 12px;
+    font-size: .76rem;
+  }
+
+  .btn-select svg {
+    width: 18px;
+    height: 18px;
+  }
   .feed-container { padding-bottom: 24px; }
   .post-actions { right: 7px; gap: 6px; padding: 5px; }
   .action-btn { width: 40px; height: 40px; }
